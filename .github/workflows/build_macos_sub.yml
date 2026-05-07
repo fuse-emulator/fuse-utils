@@ -31,7 +31,6 @@ jobs:
         shell: bash
     steps:
       - name: (1) Install dependencies
-        if: ${{ inputs.dependencies }}
         run: |
           echo "Inspect if brew installed .."
           brew doctor || true
@@ -40,17 +39,22 @@ jobs:
           brew install bash
           which -a bash
           bash --version
-          sudo sh -c 'echo /usr/local/bin/bash >> /etc/shells'
+          sudo sh -c 'echo /opt/homebrew/bin/bash >> /etc/shells'
 
           echo "Installing dependencies .."
           brew install \
             automake \
-            audiofile \
             bzip2 \
             libgcrypt \
             glib \
+            libtool \
             libxml2 \
             ${{ inputs.dependencies }}
+
+          echo "Configuring Homebrew search paths .."
+          echo "CPPFLAGS=-I$(brew --prefix)/include -I$(brew --prefix bzip2)/include -I$(brew --prefix libgcrypt)/include -I$(brew --prefix glib)/include -I$(brew --prefix libxml2)/include" >> "$GITHUB_ENV"
+          echo "LDFLAGS=-L$(brew --prefix)/lib -L$(brew --prefix bzip2)/lib -L$(brew --prefix libgcrypt)/lib -L$(brew --prefix glib)/lib -L$(brew --prefix libxml2)/lib" >> "$GITHUB_ENV"
+          echo "PKG_CONFIG_PATH=$(brew --prefix)/lib/pkgconfig:$(brew --prefix bzip2)/lib/pkgconfig:$(brew --prefix libgcrypt)/lib/pkgconfig:$(brew --prefix glib)/lib/pkgconfig:$(brew --prefix libxml2)/lib/pkgconfig" >> "$GITHUB_ENV"
 
       - name: (2) Check out repository code
         uses: actions/checkout@v6
@@ -83,7 +87,6 @@ jobs:
           .github/scripts/in_config.sh "libjpeg support: yes"
           .github/scripts/in_config.sh "libpng support: yes"
           .github/scripts/in_config.sh "libgcrypt support: yes"
-          .github/scripts/in_config.sh "libaudiofile support: yes"
           .github/scripts/in_config.sh "libspectrum's internal GLib replacement: no"
 
       - name: (8) Make

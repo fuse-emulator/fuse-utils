@@ -25,13 +25,35 @@ top_win32dir=$(top_builddir)/$(package_win32)
 install-win32: all
 	test -n "$(DESTDIR)" || { echo "ERROR: set DESTDIR path"; exit 1; }
 	$(MKDIR_P) $(DESTDIR)/ || exit 1
-#	Copy executables (we should manually copy the required libraries)
+#	Copy executables
 	list='$(bin_PROGRAMS)'; \
 	for file in $$list; do \
 	  if test -f "$(top_builddir)/.libs/$$file"; then \
 	    cp "$(top_builddir)/.libs/$$file" $(DESTDIR); \
 	  else \
 	    cp "$(top_builddir)/$$file" $(DESTDIR); \
+	  fi; \
+	done
+#	Copy required DLLs from sysroot
+	list='$(bin_PROGRAMS)'; \
+	for file in $$list; do \
+	  if test -f "$(top_builddir)/.libs/$$file"; then \
+	    $(OBJDUMP) -p "$(top_builddir)/.libs/$$file" 2>/dev/null | \
+	    grep 'DLL Name' | sed 's/.*DLL Name: //' | while read dll; do \
+	      found=0; \
+	      for searchdir in /usr/i686-w64-mingw32/sys-root/mingw/bin \
+	                      /usr/i686-w64-mingw32/sys-root/mingw/system32 \
+	                      /usr/local/i686-w64-mingw32/bin \
+	                      /usr/local/i686-w64-mingw32/system32 \
+	                      /usr/i686-pc-mingw32/sys-root/mingw/bin \
+	                      /usr/i686-pc-mingw32/sys-root/mingw/system32; do \
+	        if test -f "$$searchdir/$$dll"; then \
+	          cp "$$searchdir/$$dll" $(DESTDIR)/; \
+	          found=1; \
+	          break; \
+	        fi; \
+	      done; \
+	    done; \
 	  fi; \
 	done
 #	Get text files

@@ -24,5 +24,5 @@ jobs:
     uses: ./.github/workflows/build_linux_sub.yml
     with:
       name: Default
-      dependencies: "libaudiofile-dev"
+      dependencies: "libaudiofile-dev libgcrypt-dev libglib2.0-dev libjpeg-dev libpng-dev zlib1g-dev"
       configure_params: ""

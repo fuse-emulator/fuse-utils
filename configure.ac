@@ -53,12 +53,14 @@ AC_DEFINE([FUSE_UTILS_RC_VERSION], [fuse_utils_rc_version],
 dnl Checks for programs.
 AC_PROG_CC
 AC_PROG_CXX
+AC_PROG_RANLIB
 LT_INIT
 
 dnl Check for host specific programs.
 case "$host_os" in
   mingw32*)
     AC_CHECK_TOOL([WINDRES], [windres])
+    AC_CHECK_TOOL([OBJDUMP], [objdump])
     AC_CHECK_PROGS([MAN2HTML], [man2html])
     AC_CHECK_PROGS([GROFF], [groff])
     AC_CHECK_PROGS([UNIX2DOS], [unix2dos])
