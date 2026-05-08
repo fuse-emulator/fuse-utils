@@ -34,28 +34,9 @@ install-win32: all
 	    cp "$(top_builddir)/$$file" $(DESTDIR); \
 	  fi; \
 	done
-#	Copy required DLLs from sysroot
-	list='$(bin_PROGRAMS)'; \
-	for file in $$list; do \
-	  if test -f "$(top_builddir)/.libs/$$file"; then \
-	    $(OBJDUMP) -p "$(top_builddir)/.libs/$$file" 2>/dev/null | \
-	    grep 'DLL Name' | sed 's/.*DLL Name: //' | while read dll; do \
-	      found=0; \
-	      for searchdir in /usr/i686-w64-mingw32/sys-root/mingw/bin \
-	                      /usr/i686-w64-mingw32/sys-root/mingw/system32 \
-	                      /usr/local/i686-w64-mingw32/bin \
-	                      /usr/local/i686-w64-mingw32/system32 \
-	                      /usr/i686-pc-mingw32/sys-root/mingw/bin \
-	                      /usr/i686-pc-mingw32/sys-root/mingw/system32; do \
-	        if test -f "$$searchdir/$$dll"; then \
-	          cp "$$searchdir/$$dll" $(DESTDIR)/; \
-	          found=1; \
-	          break; \
-	        fi; \
-	      done; \
-	    done; \
-	  fi; \
-	done
+#	Copy required DLLs from sysroot, following DLL dependencies recursively.
+#	Only scan shipped top-level binaries.
+	bash "$(top_srcdir)/compat/win32/check_win32_dll_deps.sh" "$(DESTDIR)"
 #	Get text files
 	for file in AUTHORS ChangeLog COPYING README; \
 	  do cp "$(top_srcdir)/$$file" "$(DESTDIR)/$$file.txt"; \

@@ -61,7 +61,10 @@ jobs:
           echo "Use lib libgcrypt: ${{ inputs.use_libgcrypt && 'yes' || 'no' }}"
           echo "Use lib libaudiofile: ${{ inputs.use_libaudiofile && 'yes' || 'no' }}"
 
-      - name: (2) Clone libspectrum source
+      - name: (2) Check out repository code
+        uses: actions/checkout@v6
+
+      - name: (2a) Clone libspectrum source
         run: |
           cd ${GITHUB_WORKSPACE}
 
@@ -179,6 +182,7 @@ jobs:
 
       - name: (11) Copy dependency dlls
         run: |
+          # Only scan the DLLs intended for packaging.
           cd ${GITHUB_WORKSPACE}/${LIBSPECTRUM_DIR}
 
           echo "Copying mandatory dependency dlls.."
@@ -197,6 +201,11 @@ jobs:
 
           echo "Copying own dll.."
           cp -f .libs/libspectrum-*.dll .
+
+          export WIN32_DLL_SEARCH_DIRS="${CYGWIN_LIBDIR:-}"
+          export WIN32_DLL_DEPS_SCAN_EXES=0
+          repo_root=$(cygpath -u "${GITHUB_WORKSPACE}")
+          bash "${repo_root}/compat/win32/check_win32_dll_deps.sh" "${repo_root}/${LIBSPECTRUM_DIR}"
 
       - name: (12) Run tests
         id: run-tests

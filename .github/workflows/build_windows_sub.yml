@@ -92,6 +92,7 @@ jobs:
             autoconf \
             automake \
             bison \
+            dos2unix \
             flex \
             gcc-core \
             gcc-g++ \
@@ -172,6 +173,13 @@ jobs:
           
           echo "Running make dist-win32-dir .."
           make install dist-win32-dir
+
+      - name: (11b) Verify DLL dependencies in distribution
+        run: |
+          repo_root=$(cygpath -u "${GITHUB_WORKSPACE}")
+          dist_dir=$(cd "${repo_root}" && ls -d *-win32 2>/dev/null | head -n 1)
+          test -n "$dist_dir" && test -d "${repo_root}/${dist_dir}" || { echo "ERROR: win32 distribution directory not found"; exit 1; }
+          bash "${repo_root}/compat/win32/check_win32_dll_deps.sh" "${repo_root}/${dist_dir}"
 
       - name: (12) Create distribution zip
         if: ${{ inputs.upload_artifacts }}
