@@ -140,7 +140,10 @@ noinst_HEADERS = compat.h ide.h utils.h audio2tape.h importer/interpolator.h \
 
 noinst_LIBRARIES =
 
-EXTRA_DIST =
+EXTRA_DIST = \
+	     update-release.py \
+	     .agents/skills/README.md \
+	     .agents/skills/update-changelog/SKILL.md
 
 include compat/Makefile.am
 include hacking/Makefile.am
