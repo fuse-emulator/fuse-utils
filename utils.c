@@ -66,6 +66,7 @@ get_creator( libspectrum_creator **creator, const char *program )
   unsigned int version[4] = { 0, 0, 0, 0 };
   libspectrum_error error;
   size_t i;
+  static const size_t CUSTOM_SIZE = 256;
 
 #ifndef WIN32
   char osname[ 256 ];
@@ -92,19 +93,13 @@ get_creator( libspectrum_creator **creator, const char *program )
 					 version[2] * 0x100 + version[3] );
   if( error ) { libspectrum_creator_free( *creator ); return error; }
 
-  custom = malloc( 256 );
-  if( !custom ) {
-    fprintf( stderr, "%s: out of memory at %s:%d\n", progname,
-	     __FILE__, __LINE__ );
-    libspectrum_creator_free( *creator );
-    return 1;
-  }
+  custom = libspectrum_new( char, CUSTOM_SIZE );
 
 #ifdef WIN32
-  snprintf( custom, 256, "libspectrum: %s\nsystem: windows\n",
+  snprintf( custom, CUSTOM_SIZE, "libspectrum: %s\nsystem: windows\n",
 	    libspectrum_version() );
 #else
-  snprintf( custom, 256, "libspectrum: %s\nuname: %s\n",
+  snprintf( custom, CUSTOM_SIZE, "libspectrum: %s\nuname: %s\n",
 	    libspectrum_version(),
 	    osname );
 #endif
@@ -113,7 +108,7 @@ get_creator( libspectrum_creator **creator, const char *program )
 					  (libspectrum_byte*)custom,
 					  strlen( custom ) );
   if( error ) {
-    free( custom ); libspectrum_creator_free( *creator );
+    libspectrum_free( custom ); libspectrum_creator_free( *creator );
     return error;
   }
 
