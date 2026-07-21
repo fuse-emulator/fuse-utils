@@ -568,10 +568,10 @@ resample_sound( void )
   return 0;
 }
 
-static char *
+static const char *
 find_filename_ext( const char *filename )
 {
-  char *extension = NULL;
+  const char *extension = NULL;
 
   /* Get the filename extension, if it exists */
   if( filename ) {
@@ -687,7 +687,7 @@ parse_outname( void )
   out_next = malloc( strlen( out_name ) + 24 );
 
   if( f == NULL ) {	/* there is no number template */
-    char *ext;
+    const char *ext;
 
     ext = find_filename_ext( out_name );
     if( ext == NULL ) {
@@ -736,7 +736,7 @@ next_outname( libspectrum_qword num )
 int
 open_out( void )
 {
-  char *ext;
+  const char *ext;
   typedef struct {
     type_t type;
     const char *extension;
@@ -866,7 +866,7 @@ open_out( void )
 static int
 open_snd( void )
 {
-  char *ext;
+  const char *ext;
   typedef struct {
     type_t type;
     const char *extension;
