@@ -28,6 +28,11 @@ if [ -n "${CYGWIN_LIBDIR:-}" ]; then
   search_dirs+=("${CYGWIN_LIBDIR%/}")
 fi
 
+# MSYS2 toolchain
+if [ -n "${MSYSTEM_PREFIX:-}" ]; then
+  search_dirs+=("${MSYSTEM_PREFIX}/bin")
+fi
+
 if [ -n "${WIN32_DLL_SEARCH_DIRS:-}" ]; then
   # shellcheck disable=SC2206
   extra_dirs=(${WIN32_DLL_SEARCH_DIRS})
