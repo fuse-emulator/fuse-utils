@@ -1,3 +1,24 @@
+2026-07-25  Fredrick Meunier  <fredm@spamcop.net>
+
+        * Version 1.4.6 released
+
+        * tzxlist
+          * Decode BASIC tokens and symbols in tape header names (Fredrick
+            Meunier).
+
+        * fmfconv
+          * Fix a discarded const qualifier compiler warning (Sergio Baldoví).
+
+        * scl2trd
+          * Avoid a potential output truncation compiler warning (Sergio
+            Baldoví).
+
+        * General
+          * Improve Windows distribution builds and DLL dependency handling
+            (Sergio Baldoví).
+          * Use libspectrum allocation for creator custom data (Sergio
+            Baldoví).
+
 2026-05-05  Fredrick Meunier  <fredm@spamcop.net>
 
         * Version 1.4.5 released
