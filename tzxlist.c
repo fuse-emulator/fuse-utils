@@ -203,12 +203,10 @@ check_checksum(unsigned long length, libspectrum_byte * data)
 static void
 fprint_block_name( FILE *f, libspectrum_byte *data )
 {
-  char *name = libspectrum_zx_string_to_utf8( data + 2, 10 );
+  char name[ 10 * 9 + 1 ];
 
-  if( name ) {
+  if( !libspectrum_zx_string_to_utf8( name, sizeof( name ), data + 2, 10 ) )
     fprintf( f, "%s", name );
-    libspectrum_free( name );
-  }
 }
 
 static void
