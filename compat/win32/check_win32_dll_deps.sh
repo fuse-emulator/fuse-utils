@@ -9,7 +9,12 @@ fi
 
 is_system_dll() {
   case "$1" in
-    kernel32.dll|user32.dll|gdi32.dll|advapi32.dll|shell32.dll|ole32.dll|oleaut32.dll|uuid.dll|ws2_32.dll|comdlg32.dll|winmm.dll|version.dll|msvcrt.dll|bcrypt.dll|ntdll.dll|shlwapi.dll|crypt32.dll|dbghelp.dll|psapi.dll|iphlpapi.dll|secur32.dll|setupapi.dll|imm32.dll|mpr.dll|winspool.drv|api-ms-win-*|ext-ms-*) return 0 ;;
+    kernel32.dll|user32.dll|gdi32.dll|advapi32.dll|shell32.dll|ole32.dll| \
+    oleaut32.dll|uuid.dll|ws2_32.dll|comdlg32.dll|winmm.dll|version.dll| \
+    msvcrt.dll|bcrypt.dll|ntdll.dll|shlwapi.dll|crypt32.dll|dbghelp.dll| \
+    psapi.dll|iphlpapi.dll|secur32.dll|setupapi.dll|imm32.dll|mpr.dll| \
+    winspool.drv|api-ms-win-*|ext-ms-*|comctl32.dll|dwmapi.dll|dnsapi.dll| \
+    dwrite.dll|gdiplus.dll|hid.dll|msimg32.dll|opengl32.dll|rpcrt4.dll|usp10.dll) return 0 ;;
   esac
   return 1
 }
