@@ -41,6 +41,9 @@ compat_libcompatos_a_SOURCES += \
                                 compat/win32/osname.c
 endif
 
+EXTRA_DIST += \
+              compat/win32/check_win32_dll_deps.sh
+
 if COMPAT_WIN32
 include compat/win32/distribution.mk
 endif
