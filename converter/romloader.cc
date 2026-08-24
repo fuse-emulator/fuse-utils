@@ -31,8 +31,10 @@
 #include "findpilot.h"
 #include "romloader.h"
 
-romloader::romloader( double source_machine_hz, bool show_stats ) :
-  show_stats(show_stats), source_machine_hz(source_machine_hz)
+romloader::romloader( double source_machine_hz, bool show_stats,
+                      bool recover_terminal_bits ) :
+  show_stats(show_stats), recover_terminal_bits(recover_terminal_bits),
+  source_machine_hz(source_machine_hz)
 {
   m_rom_loader_state = findpilot::instance();
   first_pilot_tstates = 0;
@@ -175,6 +177,28 @@ romloader::get_bits_through_byte()
   return num_bits;
 }
 
+bool
+romloader::recover_final_checksum_bit( unsigned int first_pulse )
+{
+  libspectrum_byte checksum = 0;
+  libspectrum_byte bit;
+
+  if( !recover_terminal_bits || num_bits != 7 || data.empty() ) return false;
+
+  for( size_t i = 0; i < data.size(); i++ ) {
+    checksum ^= data[i];
+  }
+
+  if( ( current_byte << 1 ) != ( checksum & 0xfe ) ) return false;
+
+  bit = checksum & 0x01;
+  if( !matches_data_pulse( first_pulse, bit ) ) return false;
+
+  add_bit( bit );
+  std::cout << "Recovered final checksum bit from terminal extended pulse\n";
+  return true;
+}
+
 void
 romloader::finish( double end_tstates )
 {
@@ -265,6 +289,42 @@ romloader::reset_block()
   zero_pulses.clear();
   one_pulses.clear();
   data.clear();
+}
+
+bool
+romloader::matches_data_pulse( unsigned int pulse, libspectrum_byte bit )
+{
+  pulse_list& data_pulses = bit ? one_pulses : zero_pulses;
+  double total = 0;
+  unsigned int expected, difference;
+
+  if( data_pulses.empty() ) return false;
+
+  for( pulse_list::const_iterator i = data_pulses.begin();
+       i != data_pulses.end(); i++ ) {
+    total += *i;
+  }
+  expected = total / data_pulses.size();
+  difference = pulse > expected ? pulse - expected : expected - pulse;
+
+  if( difference * 4 > expected ) return false;
+
+  if( !pilot_pulses.empty() ) {
+    unsigned int pilot_expected, pilot_difference;
+
+    total = 0;
+    for( pulse_list::const_iterator i = pilot_pulses.begin();
+         i != pilot_pulses.end(); i++ ) {
+      total += *i;
+    }
+    pilot_expected = total / pilot_pulses.size();
+    pilot_difference = pulse > pilot_expected ? pulse - pilot_expected :
+                       pilot_expected - pulse;
+
+    if( pilot_difference <= difference ) return false;
+  }
+
+  return true;
 }
 
 bool

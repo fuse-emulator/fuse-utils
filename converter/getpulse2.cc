@@ -53,7 +53,9 @@ getpulse2::handle_pulse( romloader* loader, double tstates,
     loader->add_bit( 0 );
     loader->change_state( getpulse1::instance() );
   } else if ( first_pulse + pulse_length > loader->DATA_TOTAL_MAX ) {
-    // End block and go back to searching for a pilot
+    // End block and go back to searching for a pilot. An extended final
+    // pulse can hide the checksum byte's last bit on a recorded tape.
+    loader->recover_final_checksum_bit( first_pulse );
     loader->end_block( first_pulse, first_tstates );
     loader->reset_pilot_count();
     loader->change_state( findpilot::instance() );

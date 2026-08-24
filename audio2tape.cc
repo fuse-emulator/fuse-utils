@@ -194,7 +194,8 @@ main( int argc, char **argv )
 
     const pulse_list& pulses(sf.get_pulse_list());
 
-    romloader rl( source_machine_hz, show_stats );
+    romloader rl( source_machine_hz, show_stats,
+                  !keep_unrecognised_blocks );
     double tstates = 0;
 
     for( pulse_list::const_iterator i = pulses.begin();

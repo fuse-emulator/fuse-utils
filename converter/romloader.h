@@ -51,7 +51,8 @@ typedef std::vector<rom_block> rom_block_list;
 
 class romloader {
   public:
-    romloader( double source_machine_hz, bool show_stats );
+    romloader( double source_machine_hz, bool show_stats,
+               bool recover_terminal_bits );
     virtual ~romloader();
 
     void handle_pulse( double tstates, unsigned int pulse_length );
@@ -73,6 +74,7 @@ class romloader {
 
     void add_bit( libspectrum_byte bit );
     int get_bits_through_byte();
+    bool recover_final_checksum_bit( unsigned int first_pulse );
     void finish( double end_tstates );
     void end_block( double end_marker, double end_tstates );
 
@@ -98,11 +100,13 @@ class romloader {
 
   private:
     std::string uchar2hex(libspectrum_byte inbyte);
+    bool matches_data_pulse( unsigned int pulse, libspectrum_byte bit );
     void reset_block();
 
     romloaderstate* m_rom_loader_state;
 
     bool show_stats;
+    bool recover_terminal_bits;
     double source_machine_hz;
     double first_pilot_tstates;
     pulse_list pilot_pulses;
