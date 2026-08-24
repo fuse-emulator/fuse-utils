@@ -73,6 +73,7 @@ class romloader {
 
     void add_bit( libspectrum_byte bit );
     int get_bits_through_byte();
+    void finish( double end_tstates );
     void end_block( double end_marker, double end_tstates );
 
     bool check_checksum();

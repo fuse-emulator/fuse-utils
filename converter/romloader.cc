@@ -176,6 +176,12 @@ romloader::get_bits_through_byte()
 }
 
 void
+romloader::finish( double end_tstates )
+{
+  if( !data.empty() ) end_block( 0, end_tstates );
+}
+
+void
 romloader::end_block( double end_marker, double end_tstates )
 {
   std::cout << "Block ended, found " << data.size() << " bytes\n";

@@ -203,6 +203,8 @@ main( int argc, char **argv )
       tstates += *i;
     }
 
+    rl.finish( tstates );
+
     // get blocks from ROMLoader, filling gaps with data from original tape
     std::cout << "found " << rl.get_block_count() << " ROM blocks\n";
 
@@ -223,11 +225,12 @@ main( int argc, char **argv )
           }
         }
 
-        // and now the ROM block
-        rl.get_block( tzx, i, standard_rom_timings );
-
-        tstate_start = rl.get_block_end( i ); 
       }
+
+      // and now the ROM block
+      rl.get_block( tzx, i, standard_rom_timings );
+
+      tstate_start = rl.get_block_end( i );
     }
 
     // last tape tstates
