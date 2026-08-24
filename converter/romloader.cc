@@ -275,6 +275,11 @@ void
 romloader::stats( std::string type, pulse_list& data, int standardPulse,
                   unsigned int& average )
 {
+  if( data.empty() ) {
+    average = standardPulse;
+    return;
+  }
+
   unsigned int low = std::numeric_limits<unsigned int>::max();
   unsigned int high = 0;
   double total = 0;
