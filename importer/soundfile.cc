@@ -201,5 +201,8 @@ soundfile::get_tape_block( libspectrum_tape *tape, double start_tstates,
     libspectrum_tape_block_set_data( block, data );
 
     libspectrum_tape_append_block( tape, block );
+  } else {
+    libspectrum_tape_block_free( block );
+    free( data );
   }
 }
