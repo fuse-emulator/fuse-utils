@@ -214,6 +214,8 @@ write_tape( char *filename, libspectrum_tape *tape )
   libspectrum_byte *header_data;
   libspectrum_byte *sample_data;
   size_t tape_length = 0;
+  size_t terminal_pulse_length;
+  libspectrum_byte terminal_level;
   libspectrum_error error;
   short level = 0; /* The last level output to this block */
   libspectrum_dword pulse_tstates = 0;
@@ -275,6 +277,19 @@ write_tape( char *filename, libspectrum_tape *tape )
 
     libspectrum_buffer_set( sample_buffer, level ? 0xff : 0x00,
                             pulse_length );
+  }
+
+  /* libspectrum signals end of tape with a zero-duration edge when there
+     is no trailing pause. Render samples for that edge to finish the last
+     pulse with an opposite level for at least 1ms before returning low. */
+  tape_length = libspectrum_buffer_get_data_size( sample_buffer );
+  sample_data = libspectrum_buffer_get_data( sample_buffer );
+  if( tape_length && !pulse_tstates ) {
+    terminal_pulse_length = ( sample_rate + 999 ) / 1000;
+    terminal_level = sample_data[ tape_length - 1 ] ? 0x00 : 0xff;
+    libspectrum_buffer_set( sample_buffer, terminal_level,
+                            terminal_pulse_length );
+    if( terminal_level ) libspectrum_buffer_set( sample_buffer, 0x00, 1 );
   }
 
   tape_length = libspectrum_buffer_get_data_size( sample_buffer );
