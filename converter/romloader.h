@@ -98,6 +98,7 @@ class romloader {
 
   private:
     std::string uchar2hex(libspectrum_byte inbyte);
+    void reset_block();
 
     romloaderstate* m_rom_loader_state;
 

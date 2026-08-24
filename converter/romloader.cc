@@ -185,6 +185,14 @@ void
 romloader::end_block( double end_marker, double end_tstates )
 {
   std::cout << "Block ended, found " << data.size() << " bytes\n";
+  if( data.empty() ) {
+    if( num_bits ) {
+      std::cout << "Error have incomplete byte (" << num_bits << " bits)\n";
+    }
+    reset_block();
+    return;
+  }
+
   bool isHeader = data.size() == 19 && data[0] == 0x00;
   std::cout << "Flag: " << uchar2hex(data[0]) << "\n";
   std::cout << "Type: " << (isHeader ? "Header" : "Data") << "\n";
@@ -242,6 +250,12 @@ romloader::end_block( double end_marker, double end_tstates )
 
   blocks.push_back( new_block );
 
+  reset_block();
+}
+
+void
+romloader::reset_block()
+{
   first_pilot_tstates = 0;
   current_byte = 0;
   num_bits = 0;
