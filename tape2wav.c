@@ -77,7 +77,13 @@ main( int argc, char **argv )
 
     switch( c ) {
 
-    case 'r': sample_rate = abs( atoi( optarg ) ); break;
+    case 'r':
+      sample_rate = abs( atoi( optarg ) );
+      if( !sample_rate ) {
+        fprintf( stderr, "%s: invalid sample rate `%s'\n", progname, optarg );
+        error = 1;
+      }
+      break;
     case 'h': show_help(); return 0;
     case 'V': show_version(); return 0;
 
