@@ -1,3 +1,23 @@
+2026-08-24  Fredrick Meunier  <fredm@spamcop.net>
+
+        * Version 1.4.7 released
+
+        * audio2tape
+          * Fix terminal ROM block decoding, including missing final checksum
+           bits and pulse timings (bug #520) (thanks, AJ B.) (Fredrick
+            Meunier).
+          * Discard empty decoded and raw tape blocks safely (Fredrick
+            Meunier).
+
+        * tape2wav
+          * Reject zero sample rates (Fredrick Meunier).
+          * Terminate WAV output correctly after zero-pause tape blocks
+            (Fredrick Meunier).
+
+        * General
+          * Improve Windows distribution dependency handling and include its
+            DLL dependency checking script (Sergio Baldoví).
+
 2026-07-25  Fredrick Meunier  <fredm@spamcop.net>
 
         * Version 1.4.6 released
