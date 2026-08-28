@@ -170,28 +170,40 @@ soundfile::get_tape_block( libspectrum_tape *tape, double start_tstates,
   libspectrum_tape_block *block =
       libspectrum_tape_block_alloc( LIBSPECTRUM_TAPE_BLOCK_RLE_PULSE );
 
-  libspectrum_tape_block_set_scale( block, 1 );
+  unsigned int tstates_per_sample = 1;
+  if( sample_rate > 0 && source_machine_hz > sample_rate )
+    tstates_per_sample = (unsigned int)( source_machine_hz / sample_rate );
+
+  libspectrum_tape_block_set_scale( block, tstates_per_sample );
 
   // Find start of relevant section of pulse_list
   double tstates = 0;
   pulse_list::const_iterator i;
-  for( i = pulses.begin(); i != pulses.end() && tstates != start_tstates;
+  for( i = pulses.begin(); i != pulses.end() && tstates < start_tstates;
        i++ ) {
     tstates += *i;
   }
 
+  double balance = 0;
+
   // while position < end_tstates
-  while( tstates < end_tstates ) {
+  while( i != pulses.end() && tstates < end_tstates ) {
+    balance += *i;
+    unsigned int pulse =
+      (unsigned int)( balance / tstates_per_sample );
+    if( !pulse ) pulse = 1;
+    balance -= (double)pulse * tstates_per_sample;
+
     // Convert unsigned int pulse to byte w/zero marking pulses bigger than 256
     // which are LSB unsigned ints then write pulse to pulse buffer
-    if( *i <= 0xff ) {
-      data[ data_used++ ] = *i;
+    if( pulse <= 0xff ) {
+      data[ data_used++ ] = pulse;
     } else {
       data[ data_used++ ] = 0;
-      data[ data_used++ ] = ( *i & 0x000000ff )      ;
-      data[ data_used++ ] = ( *i & 0x0000ff00 ) >>  8;
-      data[ data_used++ ] = ( *i & 0x00ff0000 ) >> 16;
-      data[ data_used++ ] = ( *i & 0xff000000 ) >> 24;
+      data[ data_used++ ] = ( pulse & 0x000000ff )      ;
+      data[ data_used++ ] = ( pulse & 0x0000ff00 ) >>  8;
+      data[ data_used++ ] = ( pulse & 0x00ff0000 ) >> 16;
+      data[ data_used++ ] = ( pulse & 0xff000000 ) >> 24;
     }
     tstates += *i++;
   }
