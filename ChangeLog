@@ -9,10 +9,11 @@
           * Discard empty decoded and raw tape blocks safely (Fredrick
             Meunier).
           * Reduce the size of preserved audio and avoid invalid TZX output
-            for preserved sections longer than 38 seconds (bug #521) (thanks,
-            AJ B.) (Fredrick Meunier).
+            for preserved sections longer than 38 seconds (bug #521) (AJ B.).
           * Preserve recorded pause durations instead of writing every pause
-            as 1 ms (bug #522) (thanks, AJ B.) (Fredrick Meunier).
+            as 1 ms (bug #522) (AJ B.).
+          * Preserve checksum-failing decoded blocks as raw audio when using
+            -k (bug #523) (AJ B.).
 
         * raw2hdf
           * Fix formatting of the rawfile and --version options in the man
