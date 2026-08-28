@@ -116,8 +116,8 @@ romloader::get_block( libspectrum_tape *tape, size_t number,
 
   libspectrum_tape_block_set_data_length( block, blocks[number].data.size() );
   libspectrum_tape_block_set_data( block, data );
-  double pause_ms = ceil( blocks[number].pause_length /
-                          ( source_machine_hz * 1000 ) );
+  double pause_ms = ceil( blocks[number].pause_length * 1000.0 /
+                          source_machine_hz );
   libspectrum_tape_block_set_pause( block, pause_ms );
 
   libspectrum_tape_append_block( tape, block );

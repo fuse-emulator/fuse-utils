@@ -313,8 +313,8 @@ get_pause_block( libspectrum_tape *tape, double source_machine_hz,
   libspectrum_tape_block *block =
       libspectrum_tape_block_alloc( LIBSPECTRUM_TAPE_BLOCK_PAUSE );
 
-  double pause_ms = ceil( ( end_tstates - start_tstates ) /
-                          ( source_machine_hz * 1000 ) );
+  double pause_ms = ceil( ( end_tstates - start_tstates ) * 1000.0 /
+                          source_machine_hz );
   libspectrum_tape_block_set_pause( block, pause_ms );
   libspectrum_tape_append_block( tape, block );
 }
