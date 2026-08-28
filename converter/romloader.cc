@@ -32,8 +32,10 @@
 #include "romloader.h"
 
 romloader::romloader( double source_machine_hz, bool show_stats,
-                      bool recover_terminal_bits ) :
+                      bool recover_terminal_bits,
+                      bool preserve_unrecognised ) :
   show_stats(show_stats), recover_terminal_bits(recover_terminal_bits),
+  preserve_unrecognised(preserve_unrecognised),
   source_machine_hz(source_machine_hz)
 {
   m_rom_loader_state = findpilot::instance();
@@ -260,7 +262,11 @@ romloader::end_block( double end_marker, double end_tstates )
   new_block.sync2_length = sync2_length;
   new_block.pause_length = end_marker;
   new_block.data = data;
-  check_checksum();
+  if( !check_checksum() && preserve_unrecognised ) {
+    std::cout << "Block failed its checksum - not a decoded block, discarding\n";
+    reset_block();
+    return;
+  }
   stats ( "pilot", pilot_pulses, PILOT_LENGTH, new_block.pilot_length );
   stats ( "zero", zero_pulses, ZERO, new_block.zero_length );
   stats ( "one", one_pulses, ONE, new_block.one_length );

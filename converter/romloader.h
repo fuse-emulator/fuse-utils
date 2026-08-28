@@ -52,7 +52,7 @@ typedef std::vector<rom_block> rom_block_list;
 class romloader {
   public:
     romloader( double source_machine_hz, bool show_stats,
-               bool recover_terminal_bits );
+               bool recover_terminal_bits, bool preserve_unrecognised );
     virtual ~romloader();
 
     void handle_pulse( double tstates, unsigned int pulse_length );
@@ -107,6 +107,7 @@ class romloader {
 
     bool show_stats;
     bool recover_terminal_bits;
+    bool preserve_unrecognised;
     double source_machine_hz;
     double first_pilot_tstates;
     pulse_list pilot_pulses;
