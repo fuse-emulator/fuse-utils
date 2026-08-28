@@ -4,10 +4,19 @@
 
         * audio2tape
           * Fix terminal ROM block decoding, including missing final checksum
-           bits and pulse timings (bug #520) (thanks, AJ B.) (Fredrick
+            bits and pulse timings (bug #520) (thanks, AJ B.) (Fredrick
             Meunier).
           * Discard empty decoded and raw tape blocks safely (Fredrick
             Meunier).
+          * Reduce the size of preserved audio and avoid invalid TZX output
+            for preserved sections longer than 38 seconds (bug #521) (thanks,
+            AJ B.) (Fredrick Meunier).
+          * Preserve recorded pause durations instead of writing every pause
+            as 1 ms (bug #522) (thanks, AJ B.) (Fredrick Meunier).
+
+        * raw2hdf
+          * Fix formatting of the rawfile and --version options in the man
+            page (Alberto Garcia).
 
         * tape2wav
           * Reject zero sample rates (Fredrick Meunier).
