@@ -267,6 +267,12 @@ romloader::end_block( double end_marker, double end_tstates )
     reset_block();
     return;
   }
+  if( one_pulses.empty() && preserve_unrecognised ) {
+    std::cout <<
+      "Block decoded with no one bits - not a decoded block, discarding\n";
+    reset_block();
+    return;
+  }
   stats ( "pilot", pilot_pulses, PILOT_LENGTH, new_block.pilot_length );
   stats ( "zero", zero_pulses, ZERO, new_block.zero_length );
   stats ( "one", one_pulses, ONE, new_block.one_length );
