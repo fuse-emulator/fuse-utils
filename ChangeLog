@@ -14,6 +14,8 @@
             as 1 ms (bug #522) (AJ B.).
           * Preserve checksum-failing decoded blocks as raw audio when using
             -k (bug #523) (AJ B.).
+          * Preserve all-zero decoded blocks as raw audio when using -k
+            (bug #524) (AJ B.).
 
         * raw2hdf
           * Fix formatting of the rawfile and --version options in the man
