@@ -95,12 +95,15 @@ delete_block( libspectrum_rzx *rzx, size_t where )
 }
 
 static int
-write_snapshot( libspectrum_snap *snap, const char *filename )
+write_snapshot( libspectrum_snap *snap, const char *filename,
+                const libspectrum_creator *rzx_creator )
 {
   unsigned char *buffer = NULL; size_t length = 0;
   int error, flags;
   libspectrum_id_t type;
   libspectrum_class_t class;
+
+  if( !rzx_creator ) rzx_creator = creator;
 
   error = libspectrum_identify_file_with_class( &type, &class, filename, NULL,
 						0 );
@@ -110,7 +113,7 @@ write_snapshot( libspectrum_snap *snap, const char *filename )
     type = LIBSPECTRUM_ID_SNAPSHOT_SZX;
 
   error = libspectrum_snap_write( &buffer, &length, &flags, snap, type,
-				  creator, 0 );
+                                  (libspectrum_creator *)rzx_creator, 0 );
   if( error ) return error;
 
   error = write_file( filename, buffer, length );
@@ -140,7 +143,7 @@ extract_snap( libspectrum_rzx *rzx, size_t where, const char *filename )
     return 1;
   }
 
-  e = write_snapshot( snap, filename );
+  e = write_snapshot( snap, filename, libspectrum_rzx_creator( rzx ) );
   if( e ) return e;
   
   return 0;

@@ -50,6 +50,8 @@ const char *rzx_signature = "RZX!";
 
 size_t block_number;
 static int dump_snapshots = 0;
+static libspectrum_rzx *rzx;
+static size_t input_block_number;
 
 libspectrum_word read_word( unsigned char **ptr );
 libspectrum_dword read_dword( unsigned char **ptr );
@@ -131,6 +133,8 @@ int main( int argc, char **argv )
 
   progname = argv[0];
 
+  error = init_libspectrum(); if( error ) return error;
+
   while( ( c = getopt_long( argc, argv, "shV", long_options, NULL ) ) != -1 ) {
 
     switch( c ) {
@@ -188,9 +192,19 @@ do_file( const char *filename )
   unsigned char *buffer, *ptr, *end; size_t length;
   int error;
 
+  rzx = NULL;
+
   printf( "Examining file %s\n", filename );
 
   error = read_file( filename, &buffer, &length ); if( error ) return error;
+
+  rzx = libspectrum_rzx_alloc();
+  error = libspectrum_rzx_read( rzx, buffer, length );
+  if( error ) {
+    libspectrum_rzx_free( rzx );
+    free( buffer );
+    return error;
+  }
 
   ptr = buffer; end = buffer + length;
 
@@ -200,6 +214,7 @@ do_file( const char *filename )
     fprintf( stderr,
              "%s: Not enough bytes for RZX header (%lu bytes)\n",
 	     progname, (unsigned long)strlen( rzx_signature ) + 6 );
+    libspectrum_rzx_free( rzx );
     free( buffer );
     return 1;
   }
@@ -207,6 +222,7 @@ do_file( const char *filename )
   if( memcmp( ptr, rzx_signature, strlen( rzx_signature ) ) ) {
     fprintf( stderr, "%s: Wrong signature: expected `%s'\n", progname,
 	     rzx_signature );
+    libspectrum_rzx_free( rzx );
     free( buffer );
     return 1;
   }
@@ -214,6 +230,7 @@ do_file( const char *filename )
   printf( "Found RZX signature\n" );
   ptr += strlen( rzx_signature );
   block_number = 0;
+  input_block_number = 0;
 
   printf( "  Major version: %d\n", (int)*ptr++ );
   printf( "  Minor version: %d\n", (int)*ptr++ );
@@ -236,14 +253,21 @@ do_file( const char *filename )
     default:
       fprintf( stderr, "%s: Unknown block type 0x%02x at offset %ld\n",
                progname, id, (long)( ptr - buffer - 1 ) );
+      libspectrum_rzx_free( rzx );
       free( buffer );
       return 1;
 
     }
 
-    if( error ) { free( buffer ); return 1; }
+    if( error ) {
+      libspectrum_rzx_free( rzx );
+      free( buffer );
+      return 1;
+    }
   }
 
+  libspectrum_rzx_free( rzx );
+  rzx = NULL;
   free( buffer );
 
   return 0;
@@ -273,9 +297,10 @@ print_canonical_version( const char *creator, libspectrum_word major_version,
 static int
 read_creator_block( unsigned char **ptr, unsigned char *end )
 {
+  const libspectrum_creator *rzx_creator;
+  const char *program;
   size_t length;
   libspectrum_word major_version, minor_version;
-  unsigned char *creator;
 
   if( end - *ptr < 28 ) {
     fprintf( stderr,
@@ -287,15 +312,23 @@ read_creator_block( unsigned char **ptr, unsigned char *end )
 
   length = read_dword( ptr );
   printf( "  Length: %lu bytes\n", (unsigned long)length );
-  creator = *ptr; (*ptr) += 20;
-  major_version = read_word( ptr );
-  minor_version = read_word( ptr );
-  printf( "  Creator: `%s'\n", creator );
+
+  rzx_creator = libspectrum_rzx_creator( rzx );
+  if( !rzx_creator ) {
+    fprintf( stderr, "%s: creator block has no metadata\n", progname );
+    return 1;
+  }
+
+  program = libspectrum_creator_program( rzx_creator );
+  major_version = libspectrum_creator_major( rzx_creator );
+  minor_version = libspectrum_creator_minor( rzx_creator );
+  printf( "  Creator: `%s'\n", program );
   printf( "  Creator major version: %d\n", major_version );
   printf( "  Creator minor version: %d\n", minor_version );
-  print_canonical_version( (char *)creator, major_version, minor_version );
-  printf( "  Creator custom data: %lu bytes\n", (unsigned long)length - 29 );
-  (*ptr) += length - 29;
+  print_canonical_version( program, major_version, minor_version );
+  printf( "  Creator custom data: %lu bytes\n",
+          (unsigned long)libspectrum_creator_custom_length( rzx_creator ) );
+  (*ptr) += length - 5;
 
   return 0;
 }
@@ -475,7 +508,26 @@ read_input_block( unsigned char **ptr, unsigned char *end )
   }
 
   if( flags & 0x02 ) {		/* Data is compressed */
-    printf( "  Skipping compressed data\n" );
+    libspectrum_snap *snap;
+    int finished;
+    libspectrum_error error;
+
+    error = libspectrum_rzx_start_playback( rzx, input_block_number, &snap );
+    if( error ) return error;
+
+    for( i = 0; i < frames; i++ ) {
+      printf( "Examining frame %lu\n", (unsigned long)i );
+      printf( "  Instruction count: %lu\n",
+              (unsigned long)libspectrum_rzx_instructions( rzx ) );
+      printf( "  IN count: %lu\n", (unsigned long)
+              libspectrum_rzx_playback_inputs_remaining( rzx ) );
+
+      error = libspectrum_rzx_playback_discard_inputs( rzx );
+      if( error ) return error;
+      error = libspectrum_rzx_playback_frame( rzx, &finished, &snap );
+      if( error ) return error;
+    }
+
     (*ptr) += length - 18;
 
   } else {			/* Data is not compressed */
@@ -514,6 +566,7 @@ read_input_block( unsigned char **ptr, unsigned char *end )
 
   }
 
+  input_block_number++;
   return 0;
 }
 
