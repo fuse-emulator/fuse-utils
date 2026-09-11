@@ -1406,6 +1406,12 @@ pix_pix( int *idx, int xx, int i )
   }
 }
 
+static int
+output_uses_rendered_pixels( void )
+{
+  return out_t >= TYPE_PPM;
+}
+
 static void
 out_2_pix( void )
 {
@@ -1441,6 +1447,38 @@ out_2_pix( void )
       }
     }
   }
+}
+
+/* fmfconv derives FLASH from the FMF frame number rather than receiving the
+   producer's rendered FLASH phase. When that derived phase changes, every
+   flashing cell changes visually even if no new FMF screen slice covers it.
+   Refresh the complete cached screen so output pixels cannot retain the
+   previous phase. */
+static void
+out_refresh_flash_phase( void )
+{
+  static int previous_phase = -1;
+  int phase = ( frame_no * frm_rte % 32 ) > 15;
+  int saved_x, saved_y, saved_w, saved_h;
+
+  if( phase == previous_phase ) return;
+  previous_phase = phase;
+
+  saved_x = frm_slice_x;
+  saved_y = frm_slice_y;
+  saved_w = frm_slice_w;
+  saved_h = frm_slice_h;
+
+  frm_slice_x = 0;
+  frm_slice_y = 0;
+  frm_slice_w = SCR_PITCH;
+  frm_slice_h = 240;
+  out_2_pix();
+
+  frm_slice_x = saved_x;
+  frm_slice_y = saved_y;
+  frm_slice_w = saved_w;
+  frm_slice_h = saved_h;
 }
 
 static int
@@ -2095,7 +2133,7 @@ main( int argc, char *argv[] )
     case DO_SLICE:					/* read next fmf slice or 'N' or 'S' or 'X' */
       if( ( err = fmf_read_slice() ) ) eop = 1;
       if( out_t != TYPE_NONE ) {		/* convert slice to RGB or YUV if needed */
-        if( out_t >= TYPE_PPM ) out_2_pix();
+        if( output_uses_rendered_pixels() ) out_2_pix();
       }
       break;
     case DO_SOUND:
@@ -2107,6 +2145,7 @@ main( int argc, char *argv[] )
       break;
     case DO_FRAME:
       if( out_t != TYPE_NONE ) {
+        if( output_uses_rendered_pixels() ) out_refresh_flash_phase();
         if( ( err = out_write_frame() ) ) eop = 1;
       }
     case DO_LAST_FRAME:
