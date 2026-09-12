@@ -753,8 +753,26 @@ dump_snapshot( libspectrum_snap *snap )
   }
 
   for( i = 0; i < num_joysticks; i++ ) {
-    printf( "Joystick %lu Inputs: %d\n", (unsigned long)i,
-      libspectrum_snap_joystick_inputs( snap, i ) );
+    int inputs = libspectrum_snap_joystick_inputs( snap, i );
+    const char *separator = "";
+
+    printf( "Joystick %lu Inputs: ", (unsigned long)i );
+
+    if( inputs == LIBSPECTRUM_JOYSTICK_INPUT_NONE ) {
+      printf( "None" );
+    } else {
+      if( inputs & LIBSPECTRUM_JOYSTICK_INPUT_KEYBOARD ) {
+        printf( "Keyboard" );
+        separator = ", ";
+      }
+      if( inputs & LIBSPECTRUM_JOYSTICK_INPUT_JOYSTICK_1 ) {
+        printf( "%sJoystick 1", separator );
+        separator = ", ";
+      }
+      if( inputs & LIBSPECTRUM_JOYSTICK_INPUT_JOYSTICK_2 )
+        printf( "%sJoystick 2", separator );
+    }
+    printf( "\n" );
   }
 
   /* Peripherals list */
