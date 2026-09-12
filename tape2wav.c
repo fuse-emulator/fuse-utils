@@ -224,9 +224,9 @@ write_tape( char *filename, libspectrum_tape *tape )
   libspectrum_byte terminal_level;
   libspectrum_error error;
   short level = 0; /* The last level output to this block */
-  libspectrum_dword pulse_tstates = 0;
+  libspectrum_tape_edge edge = { 0 };
   libspectrum_dword balance_tstates = 0;
-  int close_fd = 0, fd = -1, flags = 0, res = 1;
+  int close_fd = 0, fd = -1, res = 1;
   uint32_t subchunk2size;
   uint32_t byte_rate;
   uint16_t block_align;
@@ -238,38 +238,21 @@ write_tape( char *filename, libspectrum_tape *tape )
   header_data = NULL;
   sample_data = NULL;
 
-  while( !(flags & LIBSPECTRUM_TAPE_FLAGS_TAPE) ) {
+  while( !(edge.flags & LIBSPECTRUM_TAPE_FLAGS_TAPE) ) {
     libspectrum_dword pulse_length = 0;
 
-    error = libspectrum_tape_get_next_edge( &pulse_tstates, &flags, tape );
+    error = libspectrum_tape_get_next_edge( &edge, tape );
     if( error != LIBSPECTRUM_ERROR_NONE ) {
       libspectrum_buffer_free( header_buffer );
       libspectrum_buffer_free( sample_buffer );
       return 1;
     }
 
-    /* Invert the microphone state */
-    if( pulse_tstates ||
-        !( flags & LIBSPECTRUM_TAPE_FLAGS_NO_EDGE ) ||
-        ( flags & ( LIBSPECTRUM_TAPE_FLAGS_STOP |
-                    LIBSPECTRUM_TAPE_FLAGS_LEVEL_LOW |
-                    LIBSPECTRUM_TAPE_FLAGS_LEVEL_HIGH ) ) ) {
+    level = edge.level;
 
-      if( flags & LIBSPECTRUM_TAPE_FLAGS_NO_EDGE ) {
-        /* Do nothing */
-      } else if( flags & LIBSPECTRUM_TAPE_FLAGS_LEVEL_LOW ) {
-        level = 0;
-      } else if( flags & LIBSPECTRUM_TAPE_FLAGS_LEVEL_HIGH ) {
-        level = 1;
-      } else {
-        level = !level;
-      }
+    balance_tstates += edge.tstates;
 
-    }
-
-    balance_tstates += pulse_tstates;
-
-    if( flags & LIBSPECTRUM_TAPE_FLAGS_NO_EDGE ) continue;
+    if( edge.transition == LIBSPECTRUM_TAPE_TRANSITION_NONE ) continue;
 
     pulse_length = balance_tstates / scale;
     balance_tstates = balance_tstates % scale;
@@ -290,7 +273,7 @@ write_tape( char *filename, libspectrum_tape *tape )
      pulse with an opposite level for at least 1ms before returning low. */
   tape_length = libspectrum_buffer_get_data_size( sample_buffer );
   sample_data = libspectrum_buffer_get_data( sample_buffer );
-  if( tape_length && !pulse_tstates ) {
+  if( tape_length && !edge.tstates ) {
     terminal_pulse_length = ( sample_rate + 999 ) / 1000;
     terminal_level = sample_data[ tape_length - 1 ] ? 0x00 : 0xff;
     libspectrum_buffer_set( sample_buffer, terminal_level,

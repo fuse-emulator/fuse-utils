@@ -317,7 +317,10 @@ append_scr_file( char *scr_file, libspectrum_tape *tape )
   libspectrum_tape_block_set_data( block, custom_block_data );
 
   /* Finally, put the block into the block list */
-  libspectrum_tape_append_block( tape, block );
+  if( libspectrum_tape_append_block( tape, block ) ) {
+    libspectrum_tape_block_free( block );
+    return 1;
+  }
 
   return 0;
 }
@@ -385,7 +388,10 @@ append_inlay_file( char *inlay_file, libspectrum_tape *tape )
   libspectrum_tape_block_set_data( block, custom_block_data );
 
   /* Finally, put the block into the block list */
-  libspectrum_tape_append_block( tape, block );
+  if( libspectrum_tape_append_block( tape, block ) ) {
+    libspectrum_tape_block_free( block );
+    return 1;
+  }
 
   return 0;
 }

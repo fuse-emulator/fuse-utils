@@ -164,9 +164,8 @@ write_pulses( char *filename, libspectrum_tape *tape )
 {
   libspectrum_error error;
   short level = 0; /* The last level output to this block */
-  libspectrum_dword pulse_tstates = 0;
+  libspectrum_tape_edge edge = { 0 };
   libspectrum_dword balance_tstates = 0;
-  int flags = 0;
   FILE *output_file;
 
   if( strncmp( filename, "-", 1 ) == 0 ) {
@@ -180,35 +179,18 @@ write_pulses( char *filename, libspectrum_tape *tape )
     }
   }
 
-  while( !(flags & LIBSPECTRUM_TAPE_FLAGS_TAPE) ) {
-    error = libspectrum_tape_get_next_edge( &pulse_tstates, &flags, tape );
+  while( !(edge.flags & LIBSPECTRUM_TAPE_FLAGS_TAPE) ) {
+    error = libspectrum_tape_get_next_edge( &edge, tape );
     if( error != LIBSPECTRUM_ERROR_NONE ) {
       fclose( output_file );
       return 1;
     }
 
-    /* Invert the microphone state */
-    if( pulse_tstates ||
-        !( flags & LIBSPECTRUM_TAPE_FLAGS_NO_EDGE ) ||
-        ( flags & ( LIBSPECTRUM_TAPE_FLAGS_STOP |
-                    LIBSPECTRUM_TAPE_FLAGS_LEVEL_LOW |
-                    LIBSPECTRUM_TAPE_FLAGS_LEVEL_HIGH ) ) ) {
+    level = edge.level;
 
-      if( flags & LIBSPECTRUM_TAPE_FLAGS_NO_EDGE ) {
-        /* Do nothing */
-      } else if( flags & LIBSPECTRUM_TAPE_FLAGS_LEVEL_LOW ) {
-        level = 0;
-      } else if( flags & LIBSPECTRUM_TAPE_FLAGS_LEVEL_HIGH ) {
-        level = 1;
-      } else {
-        level = !level;
-      }
+    balance_tstates += edge.tstates;
 
-    }
-
-    balance_tstates += pulse_tstates;
-
-    if( flags & LIBSPECTRUM_TAPE_FLAGS_NO_EDGE ) continue;
+    if( edge.transition == LIBSPECTRUM_TAPE_TRANSITION_NONE ) continue;
 
     fprintf(output_file, "%u : %d\n", balance_tstates, level);
 

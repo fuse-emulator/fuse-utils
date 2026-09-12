@@ -916,7 +916,10 @@ add_rom_block( libspectrum_tape *tape, const libspectrum_byte flag,
   memcpy( buffer + 1, data, length );
   buffer[ length + 1 ] = calc_checksum( buffer, length + 1 );
 
-  libspectrum_tape_append_block( tape, block );
+  if( libspectrum_tape_append_block( tape, block ) ) {
+    libspectrum_tape_block_free( block );
+    return 1;
+  }
 
   return 0;
 }
@@ -1145,7 +1148,10 @@ add_loader_block( libspectrum_tape *tape, libspectrum_byte **loader,
      we've put the page lengths in the data */
 
   /* But put the block into the tape anyway */
-  libspectrum_tape_append_block( tape, block );
+  if( libspectrum_tape_append_block( tape, block ) ) {
+    libspectrum_tape_block_free( block );
+    return 1;
+  }
 
   return 0;
 }
@@ -1354,7 +1360,10 @@ add_page( libspectrum_tape *tape, libspectrum_snap *snap, int page,
 
   (*loader_table_entry)++;
 
-  libspectrum_tape_append_block( tape, block );
+  if( libspectrum_tape_append_block( tape, block ) ) {
+    libspectrum_tape_block_free( block );
+    return 1;
+  }
 
   return 0;
 }
