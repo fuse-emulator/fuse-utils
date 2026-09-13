@@ -52,6 +52,17 @@ AC_DEFINE([FUSE_UTILS_RC_VERSION], [fuse_utils_rc_version],
 
 dnl Checks for programs.
 AC_PROG_CC
+AC_MSG_CHECKING([whether $CC supports C11])
+AC_COMPILE_IFELSE(
+  [AC_LANG_SOURCE([[
+#if !defined __STDC_VERSION__ || __STDC_VERSION__ < 201112L
+#error "C11 is required"
+#endif
+int main(void) { return 0; }
+  ]])],
+  [AC_MSG_RESULT([yes])],
+  [AC_MSG_FAILURE([a compiler with support for C11 is required])]
+)
 AC_PROG_CXX
 AC_PROG_RANLIB
 LT_INIT
