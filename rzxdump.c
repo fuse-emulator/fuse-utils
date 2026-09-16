@@ -189,24 +189,25 @@ int main( int argc, char **argv )
 static int
 do_file( const char *filename )
 {
-  unsigned char *buffer, *ptr, *end; size_t length;
+  libspectrum_file file;
+  unsigned char *ptr, *end;
   int error;
 
   rzx = NULL;
 
   printf( "Examining file %s\n", filename );
 
-  error = read_file( filename, &buffer, &length ); if( error ) return error;
+  error = read_file( filename, &file ); if( error ) return error;
 
   rzx = libspectrum_rzx_alloc();
-  error = libspectrum_rzx_read( rzx, buffer, length );
+  error = libspectrum_rzx_read( rzx, file.buffer, file.length );
   if( error ) {
     libspectrum_rzx_free( rzx );
-    free( buffer );
+    libspectrum_file_clear( &file );
     return error;
   }
 
-  ptr = buffer; end = buffer + length;
+  ptr = file.buffer; end = file.buffer + file.length;
 
   /* Read the RZX header */
 
@@ -215,7 +216,7 @@ do_file( const char *filename )
              "%s: Not enough bytes for RZX header (%lu bytes)\n",
 	     progname, (unsigned long)strlen( rzx_signature ) + 6 );
     libspectrum_rzx_free( rzx );
-    free( buffer );
+    libspectrum_file_clear( &file );
     return 1;
   }
 
@@ -223,7 +224,7 @@ do_file( const char *filename )
     fprintf( stderr, "%s: Wrong signature: expected `%s'\n", progname,
 	     rzx_signature );
     libspectrum_rzx_free( rzx );
-    free( buffer );
+    libspectrum_file_clear( &file );
     return 1;
   }
 
@@ -247,28 +248,28 @@ do_file( const char *filename )
     case 0x10: error = read_creator_block( &ptr, end ); break; 
     case 0x20: error = read_sign_start_block( &ptr, end ); break;
     case 0x21: error = read_sign_end_block( &ptr, end ); break;
-    case 0x30: error = read_snapshot_block( &ptr, end, filename ); break;
+    case 0x30: error = read_snapshot_block( &ptr, end, file.filename ); break;
     case 0x80: error = read_input_block( &ptr, end ); break;
 
     default:
       fprintf( stderr, "%s: Unknown block type 0x%02x at offset %ld\n",
-               progname, id, (long)( ptr - buffer - 1 ) );
+               progname, id, (long)( ptr - file.buffer - 1 ) );
       libspectrum_rzx_free( rzx );
-      free( buffer );
+      libspectrum_file_clear( &file );
       return 1;
 
     }
 
     if( error ) {
       libspectrum_rzx_free( rzx );
-      free( buffer );
+      libspectrum_file_clear( &file );
       return 1;
     }
   }
 
   libspectrum_rzx_free( rzx );
   rzx = NULL;
-  free( buffer );
+  libspectrum_file_clear( &file );
 
   return 0;
 }

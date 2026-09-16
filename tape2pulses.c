@@ -142,19 +142,19 @@ show_help( void )
 static int
 read_tape( char *filename, libspectrum_tape **tape )
 {
-  libspectrum_byte *buffer; size_t length;
+  libspectrum_file file;
 
-  if( read_file( filename, &buffer, &length ) ) return 1;
+  if( read_file( filename, &file ) ) return 1;
 
   *tape = libspectrum_tape_alloc();
 
-  if( libspectrum_tape_read( *tape, buffer, length, LIBSPECTRUM_ID_UNKNOWN,
-                             filename ) ) {
-    free( buffer );
+  if( libspectrum_tape_read( *tape, file.buffer, file.length, file.type,
+                             file.filename ) ) {
+    libspectrum_file_clear( &file );
     return 1;
   }
 
-  free( buffer );
+  libspectrum_file_clear( &file );
 
   return 0;
 }

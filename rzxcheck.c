@@ -75,7 +75,7 @@ show_help( void )
 int
 main( int argc, char **argv )
 {
-  unsigned char *buffer; size_t length;
+  libspectrum_file file;
 
   const char *rzxfile;
 
@@ -137,10 +137,10 @@ main( int argc, char **argv )
 
   rzx = libspectrum_rzx_alloc();
 
-  if( read_file( rzxfile, &buffer, &length ) ) return 16;
+  if( read_file( rzxfile, &file ) ) return 16;
 
-  if( libspectrum_rzx_read( rzx, buffer, length ) ) {
-    free( buffer );
+  if( libspectrum_rzx_read( rzx, file.buffer, file.length ) ) {
+    libspectrum_file_clear( &file );
     return 16;
   }
 
@@ -148,7 +148,7 @@ main( int argc, char **argv )
   if( !keyid ) {
     printf( "%s: no key ID found in '%s'\n", progname, rzxfile );
     libspectrum_rzx_free( rzx );
-    free( buffer );
+    libspectrum_file_clear( &file );
     return 16;
   }
 
@@ -159,14 +159,14 @@ main( int argc, char **argv )
     printf( "%s: don't know anything about key ID %08x\n", progname,
 	    keyid );
     libspectrum_rzx_free( rzx );
-    free( buffer );
+    libspectrum_file_clear( &file );
     return 16;
   }
 
   error = libspectrum_rzx_get_signature( rzx, &signature );
   if( error ) {
     libspectrum_rzx_free( rzx );
-    free( buffer );
+    libspectrum_file_clear( &file );
     return 16;
   }
 
@@ -174,11 +174,11 @@ main( int argc, char **argv )
   if( error && error != LIBSPECTRUM_ERROR_SIGNATURE ) {
     libspectrum_signature_free( &signature );
     libspectrum_rzx_free( rzx );
-    free( buffer );
+    libspectrum_file_clear( &file );
     return 16;
   }
 
-  free( buffer );
+  libspectrum_file_clear( &file );
 
   libspectrum_rzx_free( rzx );
   libspectrum_signature_free( &signature );

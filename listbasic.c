@@ -69,9 +69,7 @@ int detokenize( libspectrum_word offset, int length,
 
 int main(int argc, char* argv[])
 {
-  unsigned char *buffer; size_t length;
-  libspectrum_id_t type;
-  libspectrum_class_t class;
+  libspectrum_file file;
 
   int c;
   int error = 0;
@@ -120,39 +118,35 @@ int main(int argc, char* argv[])
 
   error = init_libspectrum(); if( error ) return error;
 
-  error = read_file( argv[0], &buffer, &length ); if( error ) return error;
+  error = read_file( argv[0], &file ); if( error ) return error;
 
-  error = libspectrum_identify_file_with_class( &type, &class, argv[0], buffer,
-						length );
-  if( error ) { free( buffer ); return error; }
-
-  switch( class ) {
+  switch( file.file_class ) {
 
   case LIBSPECTRUM_CLASS_SNAPSHOT:
-    error = parse_snapshot_file( buffer, length, type );
-    if( error ) { free( buffer ); return error; }
+    error = parse_snapshot_file( file.buffer, file.length, file.type );
+    if( error ) { libspectrum_file_clear( &file ); return error; }
     break;
 
   case LIBSPECTRUM_CLASS_TAPE:
-    error = parse_tape_file( buffer, length, type );
-    if( error ) { free( buffer ); return error; }
+    error = parse_tape_file( file.buffer, file.length, file.type );
+    if( error ) { libspectrum_file_clear( &file ); return error; }
     break;
 
   case LIBSPECTRUM_CLASS_UNKNOWN:
     fprintf( stderr, "%s: couldn't identify the file type of `%s'\n",
 	     progname, argv[0] );
-    free( buffer );
+    libspectrum_file_clear( &file );
     return 1;
 
   default:
     fprintf( stderr, "%s: `%s' is an unsupported file type\n",
 	     progname, argv[0] );
-    free( buffer );
+    libspectrum_file_clear( &file );
     return 1;
 
   }
 
-  free( buffer );
+  libspectrum_file_clear( &file );
 
   return 0;
 }

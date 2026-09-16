@@ -116,56 +116,18 @@ get_creator( libspectrum_creator **creator, const char *program )
 }
 
 int
-read_file( const char *filename, unsigned char **buffer, size_t *length )
+read_file( const char *filename, libspectrum_file *file )
 {
-  int fd; struct stat file_info;
-  ssize_t bytes;
-  
-  if( ( fd = open( filename, O_RDONLY | O_BINARY ) ) == -1 ) {
-    fprintf( stderr, "%s: couldn't open `%s': %s\n", progname, filename,
-	     strerror( errno ) );
-    return 1;
+  libspectrum_error error;
+
+  libspectrum_file_init( file );
+  error = libspectrum_file_open( file, filename );
+  if( error ) {
+    fprintf( stderr, "%s: couldn't read `%s' (libspectrum error %d)\n",
+             progname, filename, error );
+    return error;
   }
 
-  if( fstat( fd, &file_info) ) {
-    fprintf( stderr, "%s: couldn't stat `%s': %s\n", progname, filename,
-	     strerror( errno ) );
-    close(fd);
-    return 1;
-  }
-
-  *length = file_info.st_size;
-
-  *buffer = malloc( *length );
-  if( !*buffer ) {
-    fprintf( stderr, "%s: out of memory allocating %lu bytes\n", progname,
-             (unsigned long)*length );
-    close(fd);
-    return 1;
-  }
-
-  bytes = read( fd, *buffer, *length );
-  if( bytes == -1 ) {
-    fprintf( stderr, "%s: error reading from `%s': %s\n", progname, filename,
-             strerror( errno ) );
-    free( *buffer );
-    close(fd);
-    return 1;
-  } else if( bytes < *length ) {
-    fprintf( stderr, "%s: could read only %lu out of %lu bytes from `%s'\n",
-             progname, (unsigned long)bytes, (unsigned long)*length, filename );
-    free( *buffer );
-    close(fd);
-    return 1;
-  }
-    
-  if( close(fd) ) {
-    fprintf( stderr, "%s: couldn't close `%s': %s\n", progname, filename,
-	     strerror( errno ) );
-    free( *buffer );
-    return 1;
-  }
-  
   return 0;
 }
 

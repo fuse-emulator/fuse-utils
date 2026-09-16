@@ -92,6 +92,7 @@ main( int argc, char **argv )
 {
   libspectrum_snap *snap;
   libspectrum_id_t type; libspectrum_class_t class;
+  libspectrum_file file;
   unsigned char *buffer; size_t length;
   libspectrum_creator *creator;
   int flags;
@@ -157,19 +158,19 @@ main( int argc, char **argv )
 
   snap = libspectrum_snap_alloc();
 
-  if( read_file( argv[0], &buffer, &length ) ) {
+  if( read_file( argv[0], &file ) ) {
     libspectrum_snap_free( snap );
     return 1;
   }
 
-  error = libspectrum_snap_read( snap, buffer, length, LIBSPECTRUM_ID_UNKNOWN,
-				 argv[0] );
+  error = libspectrum_snap_read( snap, file.buffer, file.length, file.type,
+                                 file.filename );
   if( error ) {
-    libspectrum_snap_free( snap ); free( buffer );
+    libspectrum_snap_free( snap ); libspectrum_file_clear( &file );
     return error;
   }
 
-  free( buffer );
+  libspectrum_file_clear( &file );
 
   if( fix ) fix_snapshot( snap );
 

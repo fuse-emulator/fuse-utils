@@ -835,8 +835,7 @@ int
 main( int argc, char **argv )
 {
   libspectrum_snap *snap;
-  libspectrum_id_t type; libspectrum_class_t class;
-  unsigned char *buffer; size_t length;
+  libspectrum_file file;
 
   int error = 0;
   int c;
@@ -894,32 +893,28 @@ main( int argc, char **argv )
   snap = libspectrum_snap_alloc();
 
   snap_file = argv[0];
-  if( read_file( snap_file, &buffer, &length ) ) {
+  if( read_file( snap_file, &file ) ) {
     libspectrum_snap_free( snap );
     return 1;
   }
 
   /* Parse snapshot */
-  error = libspectrum_snap_read( snap, buffer, length, LIBSPECTRUM_ID_UNKNOWN,
-                                 snap_file );
+  error = libspectrum_snap_read( snap, file.buffer, file.length, file.type,
+                                 file.filename );
   if( error ) {
-    libspectrum_snap_free( snap ); free( buffer );
+    libspectrum_snap_free( snap ); libspectrum_file_clear( &file );
     return error;
   }
 
-  free( buffer );
-
-  /* Is it really an snapshot? */
-  error = libspectrum_identify_file_with_class( &type, &class, snap_file, NULL,
-                                                0 );
-  if( error ) { libspectrum_snap_free( snap ); return error; }
-
-  if( class != LIBSPECTRUM_CLASS_SNAPSHOT ) {
+  /* Is it really a snapshot? */
+  if( file.file_class != LIBSPECTRUM_CLASS_SNAPSHOT ) {
     fprintf( stderr, "%s: '%s' is not a snapshot file\n", progname, snap_file );
     libspectrum_snap_free( snap );
+    libspectrum_file_clear( &file );
     return 1;
   }
 
+  libspectrum_file_clear( &file );
   dump_snapshot( snap );
 
   error = libspectrum_snap_free( snap );

@@ -416,23 +416,15 @@ process_tape( char *filename )
   int error, min;
   int current_loop_count = 1;
   float sec;
-  unsigned char *buffer; size_t length;
+  libspectrum_file file;
   libspectrum_tape *tape;
   libspectrum_tape_iterator iterator;
   libspectrum_tape_block *block;
   float tape_total_length = 0;
   float block_total_length = 0;
-  libspectrum_id_t type;
-
   size_t i;
 
-  error = read_file( filename, &buffer, &length ); if( error ) return error;
-
-  error = libspectrum_identify_file( &type, filename, buffer, length );
-  if( error != LIBSPECTRUM_ERROR_NONE ) {
-    free( buffer );
-    return error;
-  }
+  error = read_file( filename, &file ); if( error ) return error;
 
 #ifdef HAVE_ICONV
   /* Looks like GNU libc iconv needs to have the character type locale set
@@ -440,7 +432,7 @@ process_tape( char *filename )
 #ifdef HAVE_SETLOCALE
   setlocale(LC_CTYPE, "");
 #endif /* #ifdef HAVE_SETLOCALE */
-  switch( type ) {
+  switch( file.type ) {
   case LIBSPECTRUM_ID_TAPE_TZX:
     /* Convert from Windows code page 1252 to our current locale.
        CP1252 is a valid name of the Windows-1252 charset used by WoS, Tapir and
@@ -459,14 +451,14 @@ process_tape( char *filename )
 
   tape = libspectrum_tape_alloc();
 
-  error = libspectrum_tape_read( tape, buffer, length, LIBSPECTRUM_ID_UNKNOWN,
-                                 filename );
+  error = libspectrum_tape_read( tape, file.buffer, file.length, file.type,
+                                 file.filename );
   if( error != LIBSPECTRUM_ERROR_NONE ) {
-    free( buffer );
+    libspectrum_file_clear( &file );
     return error;
   }
 
-  free( buffer );
+  libspectrum_file_clear( &file );
 
   printf( "\n\nListing of `%s':\n\n", filename );
 

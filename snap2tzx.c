@@ -494,23 +494,23 @@ static int
 load_snap( libspectrum_snap **snap, const char *filename )
 {
   int error;
-  unsigned char *buffer; size_t length;
+  libspectrum_file file;
 
   *snap = libspectrum_snap_alloc();
 
-  if( read_file( filename, &buffer, &length ) ) {
+  if( read_file( filename, &file ) ) {
     libspectrum_snap_free( *snap );
     return 1;
   }
 
-  error = libspectrum_snap_read( *snap, buffer, length, LIBSPECTRUM_ID_UNKNOWN,
-				 filename );
+  error = libspectrum_snap_read( *snap, file.buffer, file.length, file.type,
+                                 file.filename );
   if( error ) {
-    libspectrum_snap_free( *snap ); free( buffer );
+    libspectrum_snap_free( *snap ); libspectrum_file_clear( &file );
     return error;
   }
 
-  free( buffer );
+  libspectrum_file_clear( &file );
 
   return 0;
 }

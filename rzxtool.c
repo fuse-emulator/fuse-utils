@@ -152,26 +152,23 @@ extract_snap( libspectrum_rzx *rzx, size_t where, const char *filename )
 static libspectrum_snap*
 read_snap( const char *filename )
 {
-  unsigned char *buffer = NULL;
-  size_t length = 0;
+  libspectrum_file file;
   int error;
   libspectrum_snap *snap;
 
-  if( read_file( filename, &buffer, &length ) ) {
-    return NULL;
-  }
+  if( read_file( filename, &file ) ) return NULL;
 
   snap = libspectrum_snap_alloc();
 
-  error = libspectrum_snap_read( snap, buffer, length, LIBSPECTRUM_ID_UNKNOWN,
-                                 filename );
+  error = libspectrum_snap_read( snap, file.buffer, file.length, file.type,
+                                 file.filename );
 
   if( error ) {
     libspectrum_snap_free( snap );
     snap = NULL;
   }
 
-  free( buffer );
+  libspectrum_file_clear( &file );
 
   return snap;
 }
@@ -441,7 +438,7 @@ main( int argc, char *argv[] )
 {
   GSList *actions = NULL;
   options_t options;
-  unsigned char *buffer = NULL; size_t length = 0;
+  libspectrum_file file;
   libspectrum_rzx *rzx;
   int error;
 
@@ -457,15 +454,14 @@ main( int argc, char *argv[] )
     return error;
   }
 
-  error = read_file( options.rzxfile, &buffer, &length );
+  error = read_file( options.rzxfile, &file );
   if( error ) return error;
 
   rzx = libspectrum_rzx_alloc();
 
-  error = libspectrum_rzx_read( rzx, buffer, length );
+  error = libspectrum_rzx_read( rzx, file.buffer, file.length );
+  libspectrum_file_clear( &file );
   if( error ) return error;
-
-  free( buffer );
 
   g_slist_foreach( actions, apply_action, rzx );
 

@@ -210,19 +210,19 @@ get_type_from_string( libspectrum_id_t *type, const char *string )
 static int
 read_tape( char *filename, libspectrum_tape **tape )
 {
-  libspectrum_byte *buffer; size_t length;
+  libspectrum_file file;
 
-  if( read_file( filename, &buffer, &length ) ) return 1;
+  if( read_file( filename, &file ) ) return 1;
 
   *tape = libspectrum_tape_alloc();
 
-  if( libspectrum_tape_read( *tape, buffer, length, LIBSPECTRUM_ID_UNKNOWN,
-                             filename ) ) {
-    free( buffer );
+  if( libspectrum_tape_read( *tape, file.buffer, file.length, file.type,
+                             file.filename ) ) {
+    libspectrum_file_clear( &file );
     return 1;
   }
 
-  free( buffer );
+  libspectrum_file_clear( &file );
 
   return 0;
 }
@@ -286,7 +286,7 @@ append_scr_file( char *scr_file, libspectrum_tape *tape )
 {
   libspectrum_tape_block* block;
   char *description;
-  libspectrum_byte* scr_data; size_t scr_length;
+  libspectrum_file scr;
   libspectrum_byte* custom_block_data; size_t custom_block_length;
 
   block = libspectrum_tape_block_alloc( LIBSPECTRUM_TAPE_BLOCK_CUSTOM );
@@ -297,13 +297,13 @@ append_scr_file( char *scr_file, libspectrum_tape *tape )
   libspectrum_tape_block_set_text( block, description );
 
   /* Read in the data */
-  if( read_file( scr_file, &scr_data, &scr_length ) ) {
+  if( read_file( scr_file, &scr ) ) {
     free( description );
     free( block );
     return 1;
   }
 
-  custom_block_length = scr_length + 2;
+  custom_block_length = scr.length + 2;
   custom_block_data = malloc( custom_block_length );
 
   /* Picture description length 0 == "Loading Screen" */
@@ -311,7 +311,8 @@ append_scr_file( char *scr_file, libspectrum_tape *tape )
   /* Border colour 0 == black */
   custom_block_data[1] = 0;
   /* and the SCR itself */
-  memcpy( custom_block_data + 2, scr_data, scr_length );
+  memcpy( custom_block_data + 2, scr.buffer, scr.length );
+  libspectrum_file_clear( &scr );
 
   libspectrum_tape_block_set_data_length( block, custom_block_length );
   libspectrum_tape_block_set_data( block, custom_block_data );
@@ -349,7 +350,7 @@ append_inlay_file( char *inlay_file, libspectrum_tape *tape )
 {
   libspectrum_tape_block* block;
   char *description;
-  libspectrum_byte* jpg_data; size_t jpg_length;
+  libspectrum_file inlay;
   libspectrum_byte* custom_block_data; size_t custom_block_length;
 
   block = libspectrum_tape_block_alloc( LIBSPECTRUM_TAPE_BLOCK_CUSTOM );
@@ -360,13 +361,13 @@ append_inlay_file( char *inlay_file, libspectrum_tape *tape )
   libspectrum_tape_block_set_text( block, description );
 
   /* Read in the data */
-  if( read_file( inlay_file, &jpg_data, &jpg_length ) ) {
+  if( read_file( inlay_file, &inlay ) ) {
     free( description );
     free( block );
     return 1;
   }
 
-  custom_block_length = jpg_length + 2;
+  custom_block_length = inlay.length + 2;
   custom_block_data = malloc( custom_block_length );
 
   /* Picture format */
@@ -376,13 +377,15 @@ append_inlay_file( char *inlay_file, libspectrum_tape *tape )
     custom_block_data[0] = 0;
   } else {
     free( custom_block_data );
+    libspectrum_file_clear( &inlay );
     return 1;
   }
 
   /* Picture description length 0 == "Inlay Card" */
   custom_block_data[1] = 0;
   /* and the JPG itself */
-  memcpy( custom_block_data + 2, jpg_data, jpg_length );
+  memcpy( custom_block_data + 2, inlay.buffer, inlay.length );
+  libspectrum_file_clear( &inlay );
 
   libspectrum_tape_block_set_data_length( block, custom_block_length );
   libspectrum_tape_block_set_data( block, custom_block_data );
