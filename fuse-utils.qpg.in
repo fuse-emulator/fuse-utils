@@ -25,6 +25,7 @@
       <QPG:Files>
          <QPG:Add file="./LICENSE" install="LicenseUrl/" handling="repdata"/>
          <QPG:Add permissions="0755" file="./listbasic" install="/opt/bin/"/>
+         <QPG:Add permissions="0755" file="./mdrlist" install="/opt/bin/"/>
          <QPG:Add permissions="0755" file="./rzxdump" install="/opt/bin/"/>
          <QPG:Add permissions="0755" file="./rzxtool" install="/opt/bin/"/>
          <QPG:Add permissions="0755" file="./scl2trd" install="/opt/bin/"/>
@@ -35,6 +36,7 @@
          <QPG:Add permissions="0644" file="./Changelog" install="/usr/doc/fuse-utils/"/>
          <QPG:Add permissions="0644" file="./README" install="/usr/doc/fuse-utils/"/>
          <QPG:Add permissions="0644" file="./man/listbasic.1" install="/opt/man/man1/"/>
+         <QPG:Add permissions="0644" file="./man/mdrlist.1" install="/opt/man/man1/"/>
          <QPG:Add permissions="0644" file="./man/rzxcheck.1" install="/opt/man/man1/"/>
          <QPG:Add permissions="0644" file="./man/rzxdump.1" install="/opt/man/man1/"/>
          <QPG:Add permissions="0644" file="./man/rzxtool.1" install="/opt/man/man1/"/>

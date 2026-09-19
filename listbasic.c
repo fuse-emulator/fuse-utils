@@ -31,6 +31,7 @@
 #include <errno.h>
 #include <getopt.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -61,6 +62,9 @@ libspectrum_byte read_snap_memory( libspectrum_word address, void *data );
 int parse_tape_file( const unsigned char *buffer, size_t length,
 		     libspectrum_id_t type );
 libspectrum_byte read_tape_block( libspectrum_word offset, void *data );
+
+int parse_microdrive_file( unsigned char *buffer, size_t length );
+libspectrum_byte read_microdrive_program( libspectrum_word offset, void *data );
 
 int extract_basic( libspectrum_word offset, libspectrum_word end,
 		   memory_read_fn get_byte, void *data );
@@ -132,6 +136,11 @@ int main(int argc, char* argv[])
     if( error ) { libspectrum_file_clear( &file ); return error; }
     break;
 
+  case LIBSPECTRUM_CLASS_MICRODRIVE:
+    error = parse_microdrive_file( file.buffer, file.length );
+    if( error ) { libspectrum_file_clear( &file ); return error; }
+    break;
+
   case LIBSPECTRUM_CLASS_UNKNOWN:
     fprintf( stderr, "%s: couldn't identify the file type of `%s'\n",
 	     progname, argv[0] );
@@ -170,7 +179,7 @@ show_help( void )
 {
   printf(
     "Usage: %s [OPTION] <file>\n"
-    "Extracts the BASIC listing from a ZX Spectrum snapshot or tape file.\n"
+    "Extracts BASIC listings from ZX Spectrum snapshots, tapes or Microdrive cartridges.\n"
     "\n"
     "Options:\n"
     "  -b             Specifies that the program to list is a Beta BASIC program.\n"
@@ -330,6 +339,67 @@ read_tape_block( libspectrum_word offset, void *data )
   }
 
   return libspectrum_tape_block_data( tape_block )[offset];
+}
+
+libspectrum_byte
+read_microdrive_program( libspectrum_word offset, void *data )
+{
+  return ( (libspectrum_byte*)data )[offset];
+}
+
+int
+parse_microdrive_file( unsigned char *buffer, size_t length )
+{
+  libspectrum_microdrive *microdrive = libspectrum_microdrive_alloc();
+  microdrive_file *files;
+  size_t count, i;
+  int error;
+
+  if( !microdrive ) return 1;
+
+  error = libspectrum_microdrive_mdr_read( microdrive, buffer, length );
+  if( error ) {
+    libspectrum_microdrive_free( microdrive );
+    return error;
+  }
+
+  if( get_microdrive_files( microdrive, &files, &count ) ) {
+    libspectrum_microdrive_free( microdrive );
+    return 1;
+  }
+
+  for( i = 0; i < count; i++ ) {
+    microdrive_file_header header;
+    char name_utf8[ MICRODRIVE_FILE_NAME_LENGTH * 9 + 1 ];
+
+    if( !( files[i].flags & LIBSPECTRUM_MICRODRIVE_RECORD_NON_PRINT ) ||
+        decode_microdrive_file_header( &header, files[i].data,
+                                       files[i].data_length ) ||
+        header.type != 0 || !header.length ||
+        header.parameter2 > header.length || header.length > 65526 ||
+        files[i].data_length < (size_t)header.length +
+                                MICRODRIVE_FILE_HEADER_LENGTH )
+      continue;
+
+    if( !libspectrum_zx_string_to_utf8( name_utf8, sizeof( name_utf8 ),
+                                        files[i].name,
+                                        MICRODRIVE_FILE_NAME_LENGTH ) )
+      printf( "Program: \"%s\"\n", name_utf8 );
+
+    error = extract_basic( MICRODRIVE_FILE_HEADER_LENGTH,
+                           MICRODRIVE_FILE_HEADER_LENGTH + header.parameter2,
+                           read_microdrive_program, files[i].data );
+    if( error ) {
+      free_microdrive_files( files, count );
+      libspectrum_microdrive_free( microdrive );
+      return error;
+    }
+    printf( "\n" );
+  }
+
+  free_microdrive_files( files, count );
+  error = libspectrum_microdrive_free( microdrive );
+  return error;
 }
   
 int

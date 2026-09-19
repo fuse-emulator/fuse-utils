@@ -11,7 +11,8 @@ The available utilities are:
 * audio2tape: convert an audio file to tape format.
 * createhdf: create an empty .hdf IDE hard disk image.
 * fmfconv: converter tool for FMF movie files.
-* listbasic: list the BASIC in a snapshot or tape file.
+* listbasic: list the BASIC in a snapshot, tape or Microdrive cartridge file.
+* mdrlist: list the contents of an MDR Microdrive cartridge image.
 * profile2map: convert Fuse profiler output to Z80-style map format.
 * raw2hdf: create a .hdf IDE hard disk image from another file.
 * rzxcheck: verify the digital signature in an RZX file.

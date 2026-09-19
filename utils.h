@@ -31,6 +31,34 @@ int get_creator( libspectrum_creator **creator, const char *program );
 int read_file( const char *filename, libspectrum_file *file );
 int write_file( const char *filename, const void *buffer, size_t length );
 
+#define MICRODRIVE_FILE_NAME_LENGTH 10
+#define MICRODRIVE_FILE_HEADER_LENGTH 9
+
+typedef struct {
+  libspectrum_byte type;
+  libspectrum_word length;
+  libspectrum_word parameter1;
+  libspectrum_word parameter2;
+} microdrive_file_header;
+
+typedef struct {
+  libspectrum_byte name[ MICRODRIVE_FILE_NAME_LENGTH ];
+  libspectrum_byte flags;
+  size_t blocks;
+  size_t stored_length;
+  int complete;
+  int bad_checksum;
+  libspectrum_byte *data;
+  size_t data_length;
+} microdrive_file;
+
+int decode_microdrive_file_header( microdrive_file_header *header,
+                                   const libspectrum_byte *data,
+                                   size_t length );
+int get_microdrive_files( libspectrum_microdrive *microdrive,
+                          microdrive_file **files, size_t *count );
+void free_microdrive_files( microdrive_file *files, size_t count );
+
 struct rzx_key {
   libspectrum_dword id;
   const char *description;

@@ -30,6 +30,7 @@
 .libs
 /libtool
 /listbasic
+/mdrlist
 /ltmain.sh
 /m4/libtool.m4
 /m4/lt~obsolete.m4

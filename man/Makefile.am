@@ -26,6 +26,7 @@ man_MANS = \
            man/fmfconv.1 \
            man/fuse-utils.1 \
            man/listbasic.1 \
+           man/mdrlist.1 \
            man/profile2map.1 \
            man/raw2hdf.1 \
            man/rzxcheck.1 \

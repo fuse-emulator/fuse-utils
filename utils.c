@@ -28,6 +28,7 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 
@@ -54,6 +55,109 @@ init_libspectrum( void )
     fprintf( stderr, "libspectrum version %s found, but %s required",
 	     libspectrum_version(), LIBSPECTRUM_MIN_VERSION );
     return 1;
+  }
+
+  return 0;
+}
+
+int
+decode_microdrive_file_header( microdrive_file_header *header,
+                               const libspectrum_byte *data, size_t length )
+{
+  if( !header || !data || length < MICRODRIVE_FILE_HEADER_LENGTH ) return 1;
+
+  header->type = data[0];
+  header->length = data[1] | ( data[2] << 8 );
+  header->parameter1 = data[3] | ( data[4] << 8 );
+  header->parameter2 = data[5] | ( data[6] << 8 );
+  return 0;
+}
+
+void
+free_microdrive_files( microdrive_file *files, size_t count )
+{
+  size_t i;
+
+  if( !files ) return;
+  for( i = 0; i < count; i++ ) free( files[i].data );
+  free( files );
+}
+
+int
+get_microdrive_files( libspectrum_microdrive *microdrive,
+                      microdrive_file **files, size_t *file_count )
+{
+  size_t block_count, i, j;
+
+  if( !microdrive || !files || !file_count ) return 1;
+  *files = NULL;
+  *file_count = 0;
+  block_count = libspectrum_microdrive_block_count( microdrive );
+
+  *files = calloc( block_count, sizeof( **files ) );
+  if( block_count && !*files ) return 1;
+
+  for( i = 0; i < block_count; i++ ) {
+    const libspectrum_byte *name;
+    libspectrum_word length;
+    libspectrum_byte flags, record;
+    size_t end;
+
+    flags = libspectrum_microdrive_block_record_flags( microdrive, i );
+    length = libspectrum_microdrive_block_record_length( microdrive, i );
+    if( !length || length > LIBSPECTRUM_MICRODRIVE_DATA_LEN ) continue;
+
+    name = libspectrum_microdrive_block_record_name( microdrive, i );
+    for( j = 0; j < *file_count; j++ )
+      if( !memcmp( (*files)[j].name, name,
+                   MICRODRIVE_FILE_NAME_LENGTH ) ) break;
+
+    if( j == *file_count ) {
+      memcpy( (*files)[j].name, name, MICRODRIVE_FILE_NAME_LENGTH );
+      (*files)[j].flags = flags;
+      (*file_count)++;
+    }
+
+    (*files)[j].blocks++;
+    (*files)[j].stored_length += length;
+    if( flags & LIBSPECTRUM_MICRODRIVE_RECORD_EOF )
+      (*files)[j].complete = 1;
+    if( libspectrum_microdrive_checksum( microdrive, i ) )
+      (*files)[j].bad_checksum = 1;
+
+    record = libspectrum_microdrive_block_record_number( microdrive, i );
+    end = (size_t)record * LIBSPECTRUM_MICRODRIVE_DATA_LEN + length;
+    if( end > (*files)[j].data_length ) (*files)[j].data_length = end;
+  }
+
+  for( i = 0; i < *file_count; i++ ) {
+    if( !(*files)[i].data_length ) continue;
+    (*files)[i].data = calloc( (*files)[i].data_length, 1 );
+    if( !(*files)[i].data ) {
+      free_microdrive_files( *files, *file_count );
+      *files = NULL;
+      *file_count = 0;
+      return 1;
+    }
+  }
+
+  for( i = 0; i < block_count; i++ ) {
+    const libspectrum_byte *name;
+    libspectrum_word length;
+    size_t offset;
+
+    length = libspectrum_microdrive_block_record_length( microdrive, i );
+    if( !length || length > LIBSPECTRUM_MICRODRIVE_DATA_LEN ) continue;
+    name = libspectrum_microdrive_block_record_name( microdrive, i );
+    for( j = 0; j < *file_count; j++ )
+      if( !memcmp( (*files)[j].name, name,
+                   MICRODRIVE_FILE_NAME_LENGTH ) ) break;
+    if( j == *file_count ) continue;
+
+    offset = (size_t)libspectrum_microdrive_block_record_number(
+               microdrive, i ) * LIBSPECTRUM_MICRODRIVE_DATA_LEN;
+    memcpy( (*files)[j].data + offset,
+            libspectrum_microdrive_block_data( microdrive, i ), length );
   }
 
   return 0;

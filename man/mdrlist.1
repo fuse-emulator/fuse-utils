@@ -1,0 +1,49 @@
+.\" -*- nroff -*-
+.\"
+.\" mdrlist.1: mdrlist man page
+.\" Copyright (c) 2026 Fredrick Meunier
+.\"
+.\" This program is free software; you can redistribute it and/or modify
+.\" it under the terms of the GNU General Public License as published by
+.\" the Free Software Foundation; either version 2 of the License, or
+.\" (at your option) any later version.
+.\"
+.TH mdrlist 1 "20th September, 2026" "1.4.7" "Emulators"
+.SH NAME
+mdrlist \(em Sinclair ZX Spectrum Microdrive cartridge file lister
+.SH SYNOPSIS
+.B mdrlist
+.RI [ OPTION ]
+.IR "microdrivefile" ...
+.SH DESCRIPTION
+mdrlist outputs cartridge information and a file-level listing of one or more
+MDR Microdrive cartridge images. Cartridge information includes the cartridge
+name, formatted block count, available space and write-protection state.
+.P
+The default listing decodes saved file headers and identifies BASIC programs,
+number and character arrays, CODE and SCREEN$ files, and PRINT files. It also
+reports each file's length, block count, completeness and checksum status.
+.P
+An optional block-level listing displays the header and record fields of every
+formatted block, including flags, record lengths and checksum status.
+.SH OPTIONS
+.TP
+\-b, \-\-blocks
+list every cartridge block instead of the default file-level listing.
+.TP
+\-h, \-\-help
+give brief usage help, listing available options.
+.TP
+\-V, \-\-version
+output version information.
+.TP
+.I microdrivefile
+specifies an MDR file whose contents are to be listed.
+.SH BUGS
+None known.
+.SH SEE ALSO
+.IR fuse "(1),"
+.IR fuse\-utils "(1),"
+.IR tzxlist "(1)"
+.SH AUTHOR
+Fredrick Meunier (fredm@spamcop.net).

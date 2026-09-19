@@ -27,6 +27,7 @@ ACLOCAL_AMFLAGS = -I m4
 bin_PROGRAMS = createhdf \
 	       fmfconv \
 	       listbasic \
+	       mdrlist \
 	       profile2map \
 	       raw2hdf \
 	       rzxdump \
@@ -81,6 +82,9 @@ fmfconv_LDADD = $(JPEG_LIBS) $(PNG_LIBS) compat/libcompatos.a
 
 listbasic_SOURCES = listbasic.c utils.c
 listbasic_LDADD = $(LIBSPECTRUM_LIBS) compat/libcompatos.a
+
+mdrlist_SOURCES = mdrlist.c utils.c
+mdrlist_LDADD = $(LIBSPECTRUM_LIBS) compat/libcompatos.a
 
 profile2map_SOURCES = profile2map.c utils.c
 profile2map_LDADD = $(LIBSPECTRUM_LIBS) compat/libcompatos.a
@@ -156,6 +160,7 @@ audio2tape_SOURCES += audio2tape_res.rc
 createhdf_SOURCES += createhdf_res.rc
 fmfconv_SOURCES += fmfconv_res.rc
 listbasic_SOURCES += listbasic_res.rc
+mdrlist_SOURCES += mdrlist_res.rc
 profile2map_SOURCES += profile2map_res.rc
 raw2hdf_SOURCES += raw2hdf_res.rc
 rzxcheck_SOURCES += rzxcheck_res.rc

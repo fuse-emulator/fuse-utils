@@ -40,8 +40,9 @@ listbasic \(em Extract the BASIC from a ZX Spectrum file
 .\"------------------------------------------------------------------
 .\"
 .SH DESCRIPTION
-listbasic extracts the BASIC listing from a ZX Spectrum snapshot or
-tape file and prints it to standard output.
+listbasic extracts BASIC listings from a ZX Spectrum snapshot, tape file or
+MDR Microdrive cartridge image and prints them to standard output. All BASIC
+programs found in a tape or Microdrive image are listed.
 .\"
 .\"------------------------------------------------------------------
 .\"
@@ -57,8 +58,8 @@ give brief usage help, listing available options.
 output version information.
 .TP
 .I file
-specifies a snapshot or tape image from which to extract the BASIC,
-which must be in a format supported by
+specifies a snapshot, tape image or MDR Microdrive cartridge image from which
+to extract BASIC, which must be in a format supported by
 .IR libspectrum "(3)."
 .\"
 .\"------------------------------------------------------------------
