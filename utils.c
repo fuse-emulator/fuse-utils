@@ -170,7 +170,7 @@ get_creator( libspectrum_creator **creator, const char *program )
   unsigned int version[4] = { 0, 0, 0, 0 };
   libspectrum_error error;
   size_t i;
-  static const size_t CUSTOM_SIZE = 256;
+  static const size_t CUSTOM_SIZE = 512;
 
 #ifndef WIN32
   char osname[ 256 ];

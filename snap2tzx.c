@@ -167,48 +167,6 @@ static void crunch_z80 (libspectrum_byte *BufferIn, libspectrum_word BlLength, l
 }
 
 static int
-test_decz80(libspectrum_byte *source, int final_len, int source_len)
-{
-  /* source is not reversed !!! */
-
-	int dst_pnt = 0;
-	int src_pnt = final_len-source_len;
-
-	int overwrite = 0;
-
-	libspectrum_byte b1;
-	libspectrum_byte b2;
-	libspectrum_byte times;
-
-	int off = src_pnt;
-
-	while (dst_pnt < final_len && !overwrite)
-	{
-		b1 = source[src_pnt-off];
-		src_pnt++;
-		b2 = source[src_pnt-off];
-
-		if (b1 == 0xED && b2 == 0xED)
-		{
-		  /* Repeat */
-			times = source[(src_pnt-off)+1];
-			dst_pnt += times;
-			src_pnt+=3;
-		}
-		else
-		{
-			dst_pnt++;
-		}
-
-		if (dst_pnt > src_pnt)
-		{
-			overwrite = 1;
-		}
-	}
-	return overwrite;
-}
-
-static int
 test_rev_decz80( libspectrum_byte *source, int final_len, int source_len )
 {
   /* source is reversed !!! */
