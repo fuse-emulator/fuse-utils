@@ -1,4 +1,4 @@
-The Fuse utilities version 1.4.5
+The Fuse utilities version 1.5.0
 ================================
 
 The Fuse utilities are a few tools which may be of occasional use when
@@ -69,4 +69,4 @@ running 'configure' for the first time.
 Maintainer release notes are in `hacking/releasing.md'.
 
 Philip Kendall <philip-fuse@shadowmagic.org.uk>
-24th August, 2026
+20th September, 2026

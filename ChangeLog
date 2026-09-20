@@ -1,3 +1,39 @@
+2026-09-20  Fredrick Meunier  <fredm@spamcop.net>
+
+        * Version 1.5.0 released
+
+        * listbasic
+          * Support extracting BASIC listings from Microdrive cartridge
+            images (Fredrick Meunier).
+
+        * mdrlist
+          * New utility to list the contents of an MDR Microdrive cartridge
+            image (Fredrick Meunier).
+
+        * fmfconv
+          * Refresh flashing cells when the FMF flash phase changes (bug #526)
+            (thanks, Alberto Garcia) (Fredrick Meunier).
+
+        * rzxdump
+          * Display the contents of compressed input blocks (Fredrick
+            Meunier).
+
+        * rzxtool
+          * Retain RZX creator metadata when extracting snapshots (Fredrick
+            Meunier).
+
+        * snapdump
+          * Display descriptive joystick connection information (Fredrick
+            Meunier).
+
+        * General
+          * Require C11 compiler support (Fredrick Meunier).
+          * Use libspectrum's file-loading abstraction across utilities (bugs
+            #507 and #192) (thanks, Gergely Szasz and Bernat) (Fredrick
+            Meunier).
+          * Adapt tape utilities to the latest libspectrum APIs (Fredrick
+            Meunier).
+
 2026-08-24  Fredrick Meunier  <fredm@spamcop.net>
 
         * Version 1.4.7 released
