@@ -57,7 +57,7 @@ jobs:
           echo "PKG_CONFIG_PATH=$(brew --prefix)/lib/pkgconfig:$(brew --prefix bzip2)/lib/pkgconfig:$(brew --prefix libgcrypt)/lib/pkgconfig:$(brew --prefix glib)/lib/pkgconfig:$(brew --prefix libxml2)/lib/pkgconfig" >> "$GITHUB_ENV"
 
       - name: (2) Check out repository code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: (3) Download libspectrum artefact
         uses: actions/download-artifact@v8

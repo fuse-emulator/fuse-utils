@@ -58,7 +58,7 @@ jobs:
         shell: bash
 
       - name: (2) Check out repository code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           ref: ${{ inputs.ref }}
 
@@ -77,7 +77,7 @@ jobs:
 
       - name: (3) Restore Cygwin packages
         id: cygwin-cache-load
-        uses: actions/cache/restore@v5
+        uses: actions/cache/restore@v6
         with:
           path: |
             ${{ steps.cygwin-cache-path.outputs.package-cache }}
