@@ -537,6 +537,20 @@ process_tape( char *filename )
 	     libspectrum_tape_block_pause( block ) );
       break;
 
+    case LIBSPECTRUM_TAPE_BLOCK_TZX_CSW:
+      printf( "  Sample rate: %lu Hz\n",
+              (unsigned long)libspectrum_tape_block_sample_rate( block ) );
+      printf( "  Stored pulses: %lu\n",
+              (unsigned long)libspectrum_tape_block_csw_pulses( block ) );
+      printf( "  Compression: %s\n",
+              libspectrum_tape_block_csw_compression( block ) == 2 ?
+                "Z-RLE" : "RLE" );
+      printf( "  Pause length: %lu ms\n",
+              (unsigned long)libspectrum_tape_block_pause( block ) );
+      printf( "  RLE data length: %lu bytes\n",
+              (unsigned long)libspectrum_tape_block_data_length( block ) );
+      break;
+
     case LIBSPECTRUM_TAPE_BLOCK_GENERALISED_DATA:
       printf("  Pause length: %d ms\n", libspectrum_tape_block_pause( block ) );
       printf("  Pilot table:\n");
@@ -686,11 +700,7 @@ process_tape( char *filename )
       decode_header( block );
       break;
 
-    /* Libspectrum up to 1.5.0 has no support for blocks:
-       LIBSPECTRUM_TAPE_BLOCK_CSW (0x18)
-       LIBSPECTRUM_TAPE_BLOCK_SEQ_CALL (0x26)
-       LIBSPECTRUM_TAPE_BLOCK_SEQ_RET (0x27)
-    */
+    /* Call sequence (0x26) and return (0x27) are not supported. */
     default:
       printf("  (Sorry -- %s can't handle that kind of block. Skipping it)\n",
 	     progname );
