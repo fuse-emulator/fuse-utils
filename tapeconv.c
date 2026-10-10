@@ -166,19 +166,20 @@ show_help( void )
     "Usage: %s [OPTION]... <infile> <outfile>\n"
     "Converts between ZX Spectrum tape images, including TAP, TZX, PZX and CSW.\n"
     "Output format is selected by filename extension (default: TZX).\n"
+    "PZX output omits message, hardware and Custom Info metadata.\n"
     "\n"
     "Options:\n"
     "  -a <archive info TZX>\n"
     "                 Scan the TZX supplied for a Archive Info block and dump\n"
-    "                   to the output TZX.\n"
+    "                   to the output tape.\n"
     "  -b             Strip output TZX of any concatenation blocks that get created\n"
     "                   when appending TZX files.\n"
     "  -s <SCR loading screen>\n"
     "                 Attach a .scr file to the TZX as a Custom Info block marked\n"
-    "                   as a loading screen\n"
+    "                   as a loading screen. Omitted from PZX output with a warning.\n"
     "  -i <JPG or GIF inlay image>\n"
     "                 Attach an image file to the TZX as a Custom Info block marked\n"
-    "                   as a cassette inlay.\n"
+    "                   as a cassette inlay. Omitted from PZX output with a warning.\n"
     "  -h, --help     Display this help and exit.\n"
     "  -V, --version  Output version information and exit.\n"
     "\n"
@@ -411,7 +412,16 @@ write_tape( char *filename, libspectrum_tape *tape )
 
   length = 0;
 
-  if( libspectrum_tape_write( &buffer, &length, tape, type ) ) return 1;
+  if( libspectrum_tape_write( &buffer, &length, tape, type ) ) {
+    fprintf( stderr, "%s: error converting tape for output '%s'\n",
+             progname, filename );
+    free( buffer );
+    return 1;
+  }
+
+  if( type == LIBSPECTRUM_ID_TAPE_PZX && ( scr_file || inlay_file ) )
+    fprintf( stderr, "%s: warning: PZX output omits attachments added with %s\n",
+             progname, scr_file ? ( inlay_file ? "-s and -i" : "-s" ) : "-i" );
 
   error = write_file( filename, buffer, length );
   if( error ) { free( buffer ); return 1; }

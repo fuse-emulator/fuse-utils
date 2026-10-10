@@ -58,7 +58,7 @@ loops and selections are not supported by the CSW writer.
 .RI "\-a " "archive info TZX"
 causes the TZX supplied to be scanned for a Archive Info block containing
 author, year of release etc. information about the file and then added to the
-output TZX.
+output tape.
 .TP
 .RI "[ \-b ]"
 causes the output TZX to be stripped of any concatenation blocks that get
@@ -66,11 +66,13 @@ created when appending TZX files.
 .TP
 .RI "[ \-s " "SCR loading screen" " ]"
 causes the supplied .scr format file to be attached to the TZX as a Custom Info
-block marked as a loading screen.
+block marked as a loading screen. PZX output omits this attachment with a
+warning.
 .TP
 .RI "[ \-i " "JPG or GIF inlay image" " ]"
 causes the supplied .gif or .jpg format file to be attached to the TZX as a
-Custom Info block marked as a cassette inlay.
+Custom Info block marked as a cassette inlay. PZX output omits this attachment
+with a warning.
 .TP
 \-h, \-\-help
 give brief usage help, listing available options.
@@ -87,7 +89,8 @@ tape formats supported by
 specifies the output tape file. The format will be determined by the
 file extension and can be in any of the formats
 .IR libspectrum "(3)"
-supports for output, including TAP (.tap), TZX (.tzx), PZX (.pzx) and CSW (.csw).
+supports for output, including TAP (.tap), TZX (.tzx), PZX (.pzx) and
+CSW (.csw).
 If the extension is not recognised as a tape format, TZX is used.
 .\"
 .\"------------------------------------------------------------------
