@@ -434,13 +434,8 @@ process_tape( char *filename )
 #endif /* #ifdef HAVE_SETLOCALE */
   switch( file.type ) {
   case LIBSPECTRUM_ID_TAPE_TZX:
-    /* Convert from Windows code page 1252 to our current locale.
-       CP1252 is a valid name of the Windows-1252 charset used by WoS, Tapir and
-       ZX-Blockeditor on at least Linux, MacOS X and Solaris 9. If we need to
-       use another string on another OS we will need to do a little more work */
-    conversion_descriptor = iconv_open("", "CP1252");
-    break;
   case LIBSPECTRUM_ID_TAPE_PZX:
+    /* libspectrum supplies ordinary tape metadata as UTF-8. */
     conversion_descriptor = iconv_open("", "UTF-8");
     break;
   default:
