@@ -104,7 +104,12 @@ sound formats supported by
 specifies the output tape file. The format will be determined by the
 file extension and can be in any of the formats
 .IR libspectrum "(3)"
-supports for output.
+supports for output, including TAP (.tap), TZX (.tzx), PZX (.pzx) and CSW (.csw).
+If the extension is not recognised as a tape format, TZX is used.
+PZX output supports recognised ROM blocks with either original or idealised
+timings. Unrecognised audio retained by \-k is stored as raw pulse blocks,
+which the PZX writer does not support; use TZX output to preserve these blocks
+or CSW output to preserve their waveform.
 .\"
 .\"------------------------------------------------------------------
 .\"

@@ -42,7 +42,14 @@ tapeconv \(em Sinclair ZX Spectrum tape file converter
 .\"------------------------------------------------------------------
 .\"
 .SH DESCRIPTION
-tapeconv converts between ZX Spectrum tape images.
+tapeconv converts between ZX Spectrum tape images, including TAP, TZX, PZX
+and CSW files. PZX output requires all input blocks to be supported by the
+PZX writer in libspectrum; unsupported blocks cause conversion to fail.
+The \-s and \-i options add TZX Custom Info blocks, which cannot be written
+to PZX.
+CSW output stores the tape waveform, not block metadata such as archive
+information or attached images. Tape control flow blocks such as jumps,
+loops and selections are not supported by the CSW writer.
 .\"
 .\"------------------------------------------------------------------
 .\"
@@ -80,7 +87,8 @@ tape formats supported by
 specifies the output tape file. The format will be determined by the
 file extension and can be in any of the formats
 .IR libspectrum "(3)"
-supports for output.
+supports for output, including TAP (.tap), TZX (.tzx), PZX (.pzx) and CSW (.csw).
+If the extension is not recognised as a tape format, TZX is used.
 .\"
 .\"------------------------------------------------------------------
 .\"

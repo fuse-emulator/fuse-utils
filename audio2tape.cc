@@ -256,7 +256,7 @@ main( int argc, char **argv )
 static void
 write_tape( char *filename, libspectrum_tape *tape )
 {
-  libspectrum_byte *buffer; size_t length;
+  libspectrum_byte *buffer = NULL; size_t length;
   FILE *f;
   libspectrum_id_t type;
   libspectrum_class_t cls;
@@ -336,7 +336,8 @@ show_help( void )
 {
   std::cout <<
     "Usage: audio2tape [OPTION]... <infile> <outfile>\n"
-    "Converts audio files to ZX Spectrum tape images.\n"
+    "Converts audio files to ZX Spectrum tape images, including TAP, TZX, PZX and CSW.\n"
+    "Output format is selected by filename extension (default: TZX).\n"
     "\n"
     "Options:\n"
     "  -t <type>      Set the level detection trigger: 'simple' or 'schmitt';\n"

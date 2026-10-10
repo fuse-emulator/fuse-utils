@@ -25,7 +25,7 @@ The available utilities are:
 * snapdump: list information about machine status stored in a snapshot file.
 * tape2pulses: dumps the pulse information from tape images to text files.
 * tape2wav: convert a tape file to .wav audio format.
-* tapeconv: convert between .tzx and .tap files.
+* tapeconv: convert between tape image formats, including TZX, TAP, PZX and CSW.
 * tzxlist: list the contents of a TZX, TAP, PZX or Warajevo TAP file.
 
 In order to use the utilities, you'll need `libspectrum' installed;

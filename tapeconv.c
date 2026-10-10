@@ -1,4 +1,4 @@
-/* tapeconv.c: Convert .tzx files to .tap files
+/* tapeconv.c: Convert between ZX Spectrum tape image formats
    Copyright (c) 2002-2008 Philip Kendall, Fredrick Meunier
    Copyright (c) 2015 Sergio Baldovi
 
@@ -164,7 +164,8 @@ show_help( void )
 {
   printf(
     "Usage: %s [OPTION]... <infile> <outfile>\n"
-    "Converts between ZX Spectrum tape images.\n"
+    "Converts between ZX Spectrum tape images, including TAP, TZX, PZX and CSW.\n"
+    "Output format is selected by filename extension (default: TZX).\n"
     "\n"
     "Options:\n"
     "  -a <archive info TZX>\n"
@@ -402,7 +403,7 @@ append_inlay_file( char *inlay_file, libspectrum_tape *tape )
 static int
 write_tape( char *filename, libspectrum_tape *tape )
 {
-  libspectrum_byte *buffer; size_t length;
+  libspectrum_byte *buffer = NULL; size_t length;
   libspectrum_id_t type;
   int error;
 
