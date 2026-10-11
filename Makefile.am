@@ -153,6 +153,7 @@ include compat/Makefile.am
 include hacking/Makefile.am
 include m4/Makefile.am
 include man/Makefile.am
+include tests/Makefile.am
 
 ## Resources for Windows executables
 if HAVE_WINDRES
