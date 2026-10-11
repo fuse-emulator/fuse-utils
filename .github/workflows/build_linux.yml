@@ -26,3 +26,4 @@ jobs:
       name: Default
       dependencies: "libaudiofile-dev libgcrypt-dev libglib2.0-dev libjpeg-dev libpng-dev zlib1g-dev"
       configure_params: ""
+      run_check: true
