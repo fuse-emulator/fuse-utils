@@ -64,7 +64,6 @@ int main(void) { return 0; }
   [AC_MSG_FAILURE([a compiler with support for C11 is required])]
 )
 AC_PROG_CXX
-AC_PROG_RANLIB
 LT_INIT
 
 dnl Check for host specific programs.
