@@ -30,3 +30,4 @@ jobs:
       name: Default
       dependencies: ""
       configure_params: ""
+      run_check: true

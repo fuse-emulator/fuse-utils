@@ -20,6 +20,10 @@ on:
         type: string
         required: false
         default: "fuse-utils"
+      run_check:
+        type: boolean
+        required: false
+        default: false
 
 jobs:
   build:
@@ -95,6 +99,10 @@ jobs:
       - name: (9) Install
         run: sudo make install
 
-      - name: (10) Finish
+      - name: (10) Run unit tests
+        if: ${{ inputs.run_check }}
+        run: make check
+
+      - name: (11) Finish
         run: |
           echo "🍏 Finishing with status ${{ job.status }}."
