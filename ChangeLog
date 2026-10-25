@@ -1,3 +1,31 @@
+2026-10-17  Fredrick Meunier  <fredm@spamcop.net>
+
+        * Version 1.5.1 released
+
+        * audio2tape
+          * Document PZX and CSW output support and format limitations
+            (thanks, Sergio Baldoví) (Fredrick Meunier).
+
+        * tapeconv
+          * Document PZX and CSW output support and format limitations
+            (thanks, Sergio Baldoví) (Fredrick Meunier).
+          * Improve conversion error messages and warn when PZX output omits
+            screen or inlay attachments (Fredrick Meunier).
+
+        * tzxlist
+          * Show TZX CSW recording details (bug #528) (thanks, AJ B)
+            (Fredrick Meunier).
+          * Read TZX metadata as UTF-8 from libspectrum when converting to
+            the current locale's character encoding (Fredrick Meunier).
+
+        * General
+          * Add automated utility tests and run them in Linux and macOS CI
+            builds (Fredrick Meunier).
+          * Cache libspectrum builds and cancel superseded CI builds
+            (Fredrick Meunier).
+          * Remove the obsolete Autotools ranlib check (Sergio Baldoví).
+          * Fix compiler warnings (Fredrick Meunier).
+
 2026-09-20  Fredrick Meunier  <fredm@spamcop.net>
 
         * Version 1.5.0 released
