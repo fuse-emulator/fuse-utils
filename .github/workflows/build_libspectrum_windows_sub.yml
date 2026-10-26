@@ -162,7 +162,11 @@ jobs:
           .github/scripts/in_config.sh "zlib support: ${{ inputs.use_zlib && 'yes' || 'no' }}"
           .github/scripts/in_config.sh "bzip2 support: ${{ inputs.use_bzip2 && 'yes' || 'no' }}"
           .github/scripts/in_config.sh "libgcrypt support: ${{ inputs.use_libgcrypt && 'yes' || 'no' }}"
-          .github/scripts/in_config.sh "libaudiofile support: ${{ inputs.use_libaudiofile && 'yes' || 'no' }}"
+          if grep -q '^selected WAV backend:' configure.out; then
+            .github/scripts/in_config.sh "selected WAV backend: pcm"
+          else
+            .github/scripts/in_config.sh "libaudiofile support: ${{ inputs.use_libaudiofile && 'yes' || 'no' }}"
+          fi
           .github/scripts/in_config.sh "Internal GLib replacement: yes"
 
       - name: (9) Make
@@ -215,7 +219,7 @@ jobs:
           make check
 
       - name: (13) Verbose check tests (on failure)
-        if: failure() && steps.run-tests.outcome != 'success'
+        if: failure() && steps.run-tests.outcome == 'failure'
         run: |
           cd ${GITHUB_WORKSPACE}/${LIBSPECTRUM_DIR}
 
