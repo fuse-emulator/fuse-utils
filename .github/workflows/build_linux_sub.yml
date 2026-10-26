@@ -53,6 +53,8 @@ jobs:
         run: |
           # Extract (-x) files into /usr/local
           sudo tar --directory / -xvf libspectrum/libspectrum-installed-linux.tar
+          # Refresh the runtime linker cache for the installed SONAME.
+          sudo ldconfig
           echo "Done"
 
       - name: (5) Autogen.sh
